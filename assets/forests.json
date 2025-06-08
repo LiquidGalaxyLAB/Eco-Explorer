@@ -1,0 +1,254 @@
+{
+    "forests" : [
+        {
+            "name": "Amazon Rainforest",
+            "path":"amazon",
+            "area": "5500000",
+            "desc":"The Amazon Rainforest is the world’s largest tropical rainforest, spanning approximately 6,000,000 square kilometers across nine countries in northern South America, with the majority located in Brazil. Encompassing the Amazon River and its tributaries, this vast region is renowned for its extraordinary biodiversity, containing millions of plant and animal species-many still undocumented by science. The Amazon’s dense forests are home to a wide variety of trees, such as myrtle, laurel, palm, rosewood, and rubber, as well as iconic wildlife including jaguars, monkeys, anacondas, and countless bird species. The rainforest plays a crucial role in global climate regulation and has been the focus of significant conservation efforts due to ongoing threats from deforestation and development.",
+            "max_lat":"5",
+            "min_lat":"-17",
+            "max_lon":"-50",
+            "min_lon":"-80",
+            "lat": "-3",
+            "long": "-60",
+            "continent":"South_America",
+            "ecosystem":"Tropical",
+            "biodiv": [
+                {
+                    "name": "Jaguar",
+                    "sci_name": "Panthera onca",
+                    "img_link":"jaguar"
+                },
+                {
+                    "name": "Orchid",
+                    "sci_name": "Orchidaceae",
+                    "img_link":"orchid"
+                },
+                {
+                    "name": "Toucan",
+                    "sci_name": "Ramphastidae",
+                    "img_link":"toucan"
+                }
+            ]
+        },
+        {
+            "name": "Congolian Rainforest",
+            "path":"congolian",
+            "area": "3700000",
+            "desc":"The Congolian Rainforest, centered in the Congo Basin of central Africa, is the world’s second largest tropical forest, covering about two million square kilometers across six countries. Dominated by the Congo River, the region harbors 70% of Africa’s plant cover and supports immense biodiversity, including over 600 tree species and 10,000 animal species. The forest is home to unique wildlife such as the common chimpanzee, bonobo, lowland gorilla, okapi, African forest elephant, and numerous endemic birds and reptiles. While hunting and poaching threaten its fauna, the forest itself remains largely intact, making it a vital reservoir of biodiversity and ecological stability in Africa.",
+            "max_lat":"5",
+            "min_lat":"-5",
+            "max_lon":"31",
+            "min_lon":"12",
+            "lat": "0",
+            "long": "25",
+            "ecosystem":"Tropical",
+            "continent":"Africa",
+            "biodiv": [
+                {
+                    "name": "Gorilla",
+                    "sci_name": "Gorilla gorilla",
+                    "img_link":"gorilla",
+                    "dae": ""
+                },
+                {
+                    "name": "Elephant",
+                    "sci_name": "Elephantidae spp.",
+                    "img_link":"elephant"
+                },
+                {
+                    "name": "Pelican",
+                    "sci_name": "Pelicanus spp.",
+                    "img_link":"pelican"
+                }
+            ]
+        },
+        {
+            "name": "New Guinea Rainforest",
+            "path": "guinea",
+            "area": "76808",
+            "desc":"The New Guinea Rainforest, the third largest tropical rainforest globally, covers much of the island of New Guinea, which is divided between Indonesia and Papua New Guinea. Characterized by a humid tropical climate, the region features extensive lowland and montane forests, alluvial plains, and swampy areas. The rainforest is exceptionally rich in flora and fauna, including marsupials, bats, rodents, and hundreds of bird species such as the southern cassowary. Despite its ecological value, only a small percentage of the forest is under protection, though large tracts remain intact, making it one of the most significant centers of biodiversity in the Australasian realm.",
+            "max_lat":"0",
+            "min_lat":"-11",
+            "max_lon":"155",
+            "min_lon":"131",
+            "lat": "-9",
+            "long": "147.85",
+            "continent":"Asia",
+            "ecosystem":"Tropical",
+            "biodiv": [
+                {
+                    "name": "Pteropus",
+                    "sci_name": "Pteropus tonganus",
+                    "img_link":"pteropus"
+                },
+                {
+                    "name": "Orchid",
+                    "sci_name": "Orchidaceae",
+                    "img_link":"orchid"
+                },
+                {
+                    "name": "Southern Cassowary",
+                    "sci_name": "Casuarius casuarius",
+                    "img_link":"cassowary"
+                }
+            ]
+        },
+        {
+            "name": "East Siberian Taiga",
+            "path":"taiga",
+            "area": "3900000",
+            "desc":"The East Siberian Taiga is a vast boreal forest ecoregion in eastern Russia, spanning approximately 3,900,000 square kilometers. Situated within the Palearctic realm, this region features a subarctic climate with extreme temperature variations, long and frigid winters, and short, warm summers. The landscape is dominated by coniferous and deciduous trees, with wide, flat plains and areas of karst topography. Unlike its western counterpart, the East Siberian taiga lacks large bogs and wetlands, and supports a distinctive assemblage of flora and fauna adapted to its harsh, continental climate.",
+            "max_lat":"70",
+            "min_lat":"52",
+            "max_lon":"150",
+            "min_lon":"80",
+            "lat": "62",
+            "long": "105",
+            "continent":"Asia",
+            "ecosystem":"Boreal",
+            "biodiv": [
+                {
+                    "name": "Brown Bear",
+                    "sci_name": "Ursus arctos",
+                    "img_link":"bear"
+                },
+                {
+                    "name": "Cranberry",
+                    "sci_name": "Vaccinium oxycoccos",
+                    "img_link":"cranberry"
+                },
+                {
+                    "name": "Golden Eagle",
+                    "sci_name": "Aquila chrysaetos",
+                    "img_link":"eagle"
+                }
+            ]
+        },
+        {
+            "name": "The Sundarbans",
+            "path": "sunderbans",
+            "area": "10277",
+            "desc":"The Sundarbans is the world’s largest mangrove forest, occupying about 10,000 square kilometers in the southern Ganges Delta along the Bay of Bengal, with roughly 60% in Bangladesh and the remainder in India. Comprising more than 100 low, marshy islands interlaced with tidal rivers and creeks, the Sundarbans is renowned for its rich biodiversity, including the iconic Bengal tiger, water buffalo, crocodiles, and a variety of bird and aquatic species. The region faces significant ecological threats from deforestation, rising sea levels, erosion, and frequent cyclones, which have led to the loss of land and displacement of local populations.",
+            "max_lat":"22.5",
+            "min_lat":"21.4583",
+            "max_lon":"90",
+            "min_lon":"89.0333",
+            "lat": "21.98",
+            "long": "89.52",
+            "continent":"Asia",
+            "ecosystem":"Tropical",
+            "biodiv": [
+                {
+                    "name": "Royal Bengal Tiger",
+                    "sci_name": "Panthera tigris",
+                    "img_link":"tiger"
+                },
+                {
+                    "name": "Mango",
+                    "sci_name": "Mangifera indica",
+                    "img_link":"mango"
+                },
+                {
+                    "name": "Kingfisher",
+                    "sci_name": "Halcyon pileata",
+                    "img_link":"kingfisher"
+                }
+            ]
+        },
+        {
+            "name": "Appalachian Rainforest",
+            "path": "appalachian",
+            "area": "159000",
+            "desc":"The Appalachian Rainforest refers to the temperate rainforest zones within the Appalachian–Blue Ridge forests ecoregion, located in the central and southern Appalachian Mountains of the eastern United States. Covering about 159,000 square kilometers, this region is notable for its remarkable biodiversity, harboring a high number of endemic plant and animal species. Its varied topography, microclimates, and long-term geologic stability have created numerous refugia for relict species, resulting in one of the world’s richest temperate deciduous forests. The climate ranges from humid continental to humid subtropical, supporting lush forests and diverse habitats.",
+            "max_lat":"37.5",
+            "min_lat":"34.0",
+            "max_lon":"-83.0",
+            "min_lon":"-86.0",
+            "lat": "35.75",
+            "long": "-82.5",
+            "continent":"North_America",
+            "ecosystem":"Temperate",
+            "biodiv": [
+                {
+                    "name": "American Black Bear",
+                    "sci_name": "Ursus americanus",
+                    "img_link":"black_bear"
+                },
+                {
+                    "name": "Rhododendron",
+                    "sci_name": "Rhododendron ferrugineum",
+                    "img_link":"rhododendron"
+                },
+                {
+                    "name": "Wild Turkey",
+                    "sci_name": "Meleagris gallopavo",
+                    "img_link":"turkey"
+                }
+            ]
+        },
+        {
+            "name": "Valdivian Temperate Forest",
+            "path": "valdivian",
+            "area": "248100",
+            "desc":"The Valdivian Temperate Forest is a unique ecoregion stretching along the southern coast of Chile and into Argentina, covering approximately 95,800 square miles. Characterized by mixed and broadleaf temperate forests, it is home to a high proportion of endemic plant species, including ancient trees such as the alerce and olivillo. The region’s rich biodiversity also includes threatened mammals like the southern pudu and monito del monte, as well as the Magellanic woodpecker. The forest’s high rainfall is driven by prevailing westerly winds, but extensive logging and the replacement of native trees with plantations pose significant conservation challenges.",
+            "max_lat":"-35",
+            "min_lat":"-48",
+            "max_lon":"-71",
+            "min_lon":"-75",
+            "lat": "-41.330108",
+            "long": "-73.661378",
+            "continent":"South_America",
+            "ecosystem":"Temperate",
+            "biodiv": [
+                {
+                    "name": "South Andean Deer",
+                    "sci_name": "Hippocamelus bisulcus",
+                    "img_link":"deer"
+                },
+                {
+                    "name": "Eucalyptus",
+                    "sci_name": "Eucalyptus spp.",
+                    "img_link":"eucalyptus"
+                },
+                {
+                    "name": "Magellanic Woodpecker",
+                    "sci_name": "Campephilus magellanicus",
+                    "img_link":"woodpecker"
+                }
+            ]
+        },
+        {
+            "name": "Daintree Rainforest",
+            "path": "daintree",
+            "area": "1200",
+            "desc":"The Daintree Rainforest, located in northeastern Queensland, Australia, is considered the oldest continuously surviving tropical rainforest on earth, estimated at 130 million years old. Encompassing about 1,200 square kilometers, it forms part of the Wet Tropics World Heritage Area. The Daintree is renowned for its exceptional biodiversity, hosting a significant proportion of Australia’s rare and threatened plant and animal species, including ancient flowering plant families. Its diverse landscape features dense forests, mountain ranges, streams, waterfalls, and gorges, making it a living museum of evolutionary history and a vital refuge for many unique species.",
+            "max_lat":"-15.95",
+            "min_lat":"-16.30",
+            "max_lon":"145.45",
+            "min_lon":"145.25",
+            "lat": "-16.17",
+            "long": "145.4185",
+            "continent":"Australia",
+            "ecosystem":"Tropical",
+            "biodiv": [
+                {
+                    "name": "Kangaroo",
+                    "sci_name": "Macropus spp.",
+                    "img_link":"kangaroo"
+                },
+                {
+                    "name": "Saltwater Crocodile",
+                    "sci_name": "Crocodylus porosus",
+                    "img_link":"crocodile"
+                },
+                {
+                    "name": "Ribbonwood",
+                    "sci_name": "Idiospermum australiense",
+                    "img_link":"ribbonwood"
+                }
+            ]
+        }
+
+    ]
+}

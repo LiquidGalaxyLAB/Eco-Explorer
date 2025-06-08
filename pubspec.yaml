@@ -34,6 +34,27 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  dartssh2:
+  shared_preferences:
+  path_provider:
+  google_fonts:
+  stroke_text:
+  lottie:
+  dotlottie_loader:
+  google_maps_flutter:
+  google_maps_flutter_android:
+  flutter_bloc:
+  http:
+  dio:
+  hive_flutter:
+  hive:
+  connectivity_plus:
+  fl_chart:
+  csv:
+  groq:
+  deepgram_speech_to_text:
+  fast_noise:
+  screenshot:
 
 dev_dependencies:
   flutter_test:
@@ -45,6 +66,8 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
+  hive_generator:
+  build_runner:
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -58,7 +81,21 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
+  assets:
+    - assets/voice/
+    - assets/forests.json
+    - assets/continents/
+    - assets/home/
+    - assets/logos/
+    - assets/catastrophe/
+    - assets/biodiv/amazon/
+    - assets/biodiv/appalachian/
+    - assets/biodiv/congolian/
+    - assets/biodiv/daintree/
+    - assets/biodiv/guinea/
+    - assets/biodiv/sunderbans/
+    - assets/biodiv/taiga/
+    - assets/biodiv/valdivian/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
