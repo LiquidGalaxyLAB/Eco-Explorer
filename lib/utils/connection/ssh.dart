@@ -1,0 +1,266 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:dartssh2/dartssh2.dart';
+import 'package:eco_explorer/constants/strings.dart';
+import 'package:eco_explorer/utils/kml/kml_entity.dart';
+import 'package:eco_explorer/utils/kml/look_at_entity.dart';
+import 'package:eco_explorer/widgets/snackbar.dart';
+import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../constants/theme.dart';
+
+class Ssh{
+  late String _host;
+  late String _port;
+  late String _username;
+  late String _passwordOrKey;
+  late String _numberOfRigs;
+  SSHClient? _client;
+  bool isConnected = false;
+
+  Future<void> initConnectionDetails() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    _host = prefs.getString('ipAddress') ?? 'default_host';
+    _port = prefs.getString('sshPort') ?? '22';
+    _username = prefs.getString('username') ?? 'lg';
+    _passwordOrKey = prefs.getString('password') ?? 'lg';
+    _numberOfRigs = prefs.getString('numberOfRigs') ?? '3';
+  }
+
+  Future<bool?> connectToLG(BuildContext context) async {
+    await initConnectionDetails();
+    try {
+      final socket = await SSHSocket.connect(_host, int.parse(_port));
+
+      _client = SSHClient(socket, username: _username,
+        onPasswordRequest: () =>_passwordOrKey,
+      );
+
+      print('IP: $_host, port: $_port ');
+      isConnected = true;
+
+      showSnackBar(context, 'Connected to LG Server', Colors.green);
+      return true;
+    } on SocketException catch (e) {
+      print('Failed to connect: $e');
+      isConnected = false;
+      showSnackBar(context, 'Failed to connect', Themes.error);
+      return false;
+    }
+    catch (e) {
+      print('Failed to connect: $e');
+      isConnected = false;
+      showSnackBar(context, 'Failed to connect', Themes.error);
+      return false;
+    }
+  }
+
+  Future<bool> reconnectToLG(BuildContext context) async {
+    await connectToLG(context);
+    return isConnected;
+  }
+
+  Future<void> setRefresh(BuildContext context) async {
+    try{
+      if(_client==null) {
+        return;
+      }
+      for(int i=2;i<=int.parse(_numberOfRigs);i++){
+        String search = '<href>##LG_PHPIFACE##kml\\/slave_$i.kml<\\/href>';
+        String replace =
+            '<href>##LG_PHPIFACE##kml\\/slave_$i.kml<\\/href><refreshMode>onInterval<\\/refreshMode><refreshInterval>2<\\/refreshInterval>';
+
+        await _client!.run(
+            'sshpass -p $_passwordOrKey ssh -t lg$i \'echo $_passwordOrKey | sudo -S sed -i "s/$replace/$search/" ~/earth/kml/slave/myplaces.kml\'');
+        await _client!.run(
+            'sshpass -p $_passwordOrKey ssh -t lg$i \'echo $_passwordOrKey | sudo -S sed -i "s/$search/$replace/" ~/earth/kml/slave/myplaces.kml\'');
+      }
+      showSnackBar(context, 'Refresh set', Colors.green);
+    }catch(e){
+      showSnackBar(context, e.toString(), Themes.error);
+    }
+  }
+
+  Future<void> resetRefresh(BuildContext context) async {
+    try{
+      if(_client==null) {
+        return;
+      }
+      for(int i=2;i<=int.parse(_numberOfRigs);i++){
+        String search =
+            '<href>##LG_PHPIFACE##kml\\/slave_$i.kml<\\/href><refreshMode>onInterval<\\/refreshMode><refreshInterval>2<\\/refreshInterval>';
+        String replace = '<href>##LG_PHPIFACE##kml\\/slave_$i.kml<\\/href>';
+
+        await _client?.run(
+            'sshpass -p $_passwordOrKey ssh -t lg$i \'echo $_passwordOrKey | sudo -S sed -i "s/$search/$replace/" ~/earth/kml/slave/myplaces.kml\'');
+        showSnackBar(context, 'Refresh reset', Colors.green);
+      }
+    }catch(e){
+      showSnackBar(context, e.toString(), Themes.error);
+    }
+  }
+
+  Future<void> relaunchLG(BuildContext context) async {
+    try{
+      if(_client==null) {
+        return;
+      }
+      for(int i=1;i<=int.parse(_numberOfRigs);i++){
+        String command = """RELAUNCH_CMD="\\
+          if [ -f /etc/init/lxdm.conf ]; then
+            export SERVICE=lxdm
+          elif [ -f /etc/init/lightdm.conf ]; then
+            export SERVICE=lightdm
+          else
+            exit 1
+          fi
+          if  [[ \\\$(service \\\$SERVICE status) =~ 'stop' ]]; then
+            echo $_passwordOrKey | sudo -S service \\\${SERVICE} start
+          else
+            echo $_passwordOrKey | sudo -S service \\\${SERVICE} restart
+          fi
+          " && sshpass -p $_passwordOrKey ssh -x -t lg@lg$i "\$RELAUNCH_CMD\"""";
+
+        await _client!
+            .execute('"/home/$_username/bin/lg-relaunch" > /home/$_client/log.txt');
+        await _client!.execute(command);
+      }
+    }catch(e){
+      showSnackBar(context, e.toString(), Themes.error);
+    }
+  }
+
+  Future<void> rebootLG(BuildContext context) async{
+    try{
+      if(_client==null) {
+        return;
+      }
+      for(int i=1;i<=int.parse(_numberOfRigs);i++){
+        await _client!.execute(
+            'sshpass -p $_passwordOrKey ssh -t lg$i "echo $_passwordOrKey | sudo -S reboot"'
+        );
+      }
+    }catch(e){
+      showSnackBar(context, e.toString(), Themes.error);
+    }
+  }
+
+  Future<void> powerOff(BuildContext context) async{
+    try{
+      if(_client==null) {
+        return;
+      }
+      for(int i=1;i<=int.parse(_numberOfRigs);i++){
+        await _client!.execute(
+            'sshpass -p $_passwordOrKey ssh -t lg$i "echo $_passwordOrKey | sudo -S poweroff"'
+        );
+      }
+    }catch(e){
+      showSnackBar(context, e.toString(), Themes.error);
+    }
+  }
+
+  Future<void> clearKml(BuildContext context) async{
+    try{
+      String query =
+          'echo "exittour=true" > /tmp/query.txt && > /var/www/html/kmls.txt';
+      for (var i = 2; i <= int.parse(_numberOfRigs); i++) {
+        String blankKml = KmlEntity.generateBlank('slave_$i');
+        query += " && echo '$blankKml' > /var/www/html/kml/slave_$i.kml";
+      }
+
+      await _client!.execute(query);
+    }catch(e){
+      await reconnectToLG(context);
+      clearKml(context);
+    }
+  }
+
+  Future<void> sendKml(BuildContext context, String fileName, String kmlContent) async{
+    try{
+      if(_client==null) {
+        return;
+      }
+      final sftp = await _client!.sftp();
+      final file = await sftp.open('${Constants.remoteFile}/$fileName.kml',
+          mode: SftpFileOpenMode.create |
+          SftpFileOpenMode.truncate |
+          SftpFileOpenMode.write);
+
+      var bytes = utf8.encode(kmlContent);
+      file.writeBytes(bytes);
+
+      await _client!.execute('echo "${Constants.lgUrl}/$fileName.kml" > /var/www/html/kmls.txt');
+    }catch(e){
+      showSnackBar(context, e.toString(), Themes.error);
+    }
+  }
+
+  Future<void> sendKmltoSlave(BuildContext context, String fileName, String kmlContent, int slaveNo) async{
+    try{
+      if(_client==null) {
+        return;
+      }
+
+      await _client!.execute("echo 'kmlContent' > /var/www/html/kml/slave_$slaveNo.kml");
+    }catch(e){
+      showSnackBar(context, e.toString(), Themes.error);
+    }
+  }
+
+  Future<void> startOrbit(BuildContext context) async {
+    try {
+      if(_client==null) {
+        return;
+      }
+      await _client!.run('echo "playtour=Orbit" > /tmp/query.txt');
+    } catch (e) {
+      showSnackBar(context, e.toString(), Themes.error);
+    }
+  }
+
+  Future<void> stopOrbit(BuildContext context) async{
+    try {
+      await _client!.run('echo "exittour=true" > /tmp/query.txt');
+    } catch (error) {
+      await reconnectToLG(context);
+      stopOrbit(context);
+    }
+  }
+
+  Future<bool> flyToOrbit(BuildContext context, double latitude, double longitude,
+      double zoom, double tilt, double heading) async {
+    try {
+      if(_client==null)
+      {
+        await reconnectToLG(context);
+        if(isConnected==false) {
+          return false;
+        }
+      }
+      String lookAt = LookAtEntity(latitude, longitude, zoom, tilt, heading).orbitLinearLookAt();
+      await _client!.run(
+          'echo "flytoview=$lookAt" > /tmp/query.txt');
+      return true;
+    } catch (e) {
+      showSnackBar(context, e.toString(), Themes.error);
+      return false;
+    }
+  }
+
+  Future<void> flyToWithoutSaving(BuildContext context, double latitude, double longitude,
+      double zoom, double tilt, double heading) async {
+    try {
+      String lookAt = LookAtEntity(latitude, longitude, zoom, tilt, heading).linearLookAt();
+      await _client!.run(
+          'echo "flytoview=$lookAt" > /tmp/query.txt');
+    } catch (e) {
+      showSnackBar(context, e.toString(), Themes.error);
+    }
+  }
+
+}
