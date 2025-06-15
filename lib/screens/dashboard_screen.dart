@@ -1,50 +1,40 @@
-import 'package:eco_explorer/bloc/aqi_bloc.dart';
-import 'package:eco_explorer/bloc/fire_bloc.dart';
 import 'package:eco_explorer/constants/fonts.dart';
-import 'package:eco_explorer/models/aqi/aqi_model.dart';
-import 'package:eco_explorer/models/fire/fire_model.dart';
-import 'package:eco_explorer/models/historical_aqi/hist_aqi_model.dart';
-import 'package:eco_explorer/providers/nasa_firms_data_provider.dart';
-import 'package:eco_explorer/repositories/fire_repository.dart';
 import 'package:eco_explorer/screens/dashboard/biodiv_screen.dart';
 import 'package:eco_explorer/screens/dashboard/cata_screen.dart';
 import 'package:eco_explorer/screens/dashboard/enviro_screen.dart';
 import 'package:eco_explorer/screens/dashboard/info_screen.dart';
+import 'package:eco_explorer/utils/kml/balloon_entity.dart';
 import 'package:eco_explorer/widgets/connection_bar.dart';
+import 'package:eco_explorer/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:hive/hive.dart';
+import 'package:lottie/lottie.dart';
 import 'package:stroke_text/stroke_text.dart';
-
-import '../bloc/hist_aqi_bloc.dart';
 import '../constants/strings.dart';
 import '../constants/theme.dart';
 import '../models/forests_model.dart';
-import '../providers/aqi_data_provider.dart';
-import '../providers/local/db_provider.dart';
-import '../providers/local/db_service.dart';
-import '../repositories/aqi_repository.dart';
+import '../ref/instance_provider.dart';
+import '../ref/values_provider.dart';
 import '../utils/connection/ssh.dart';
 
-class DashboardScreen extends StatefulWidget {
-  final Forest forest;
-  final Ssh ssh;
-  const DashboardScreen({super.key, required this.forest, required this.ssh});
+class DashboardScreen extends ConsumerStatefulWidget {
+  const DashboardScreen({super.key});
 
   @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
-  int index = 0;
+class _DashboardScreenState extends ConsumerState<DashboardScreen> with TickerProviderStateMixin{
+  late int index;
   final title = ['Information','Biodiversity','Environment','Catastrophes'];
+  final pages = [InfoScreen(), BiodivScreen(), EnviroScreen(), CataScreen()];
+
+  final List<MapType> maps = [MapType.satellite, MapType.terrain, MapType.hybrid];
 
   late Ssh ssh;
-
-  final List<String> labels = ['Satellite', 'Terrain', 'Hybrid'];
-  final List<MapType> maps = [MapType.satellite, MapType.terrain, MapType.hybrid];
-  int selectedIndex = 0;
-  MapType selectedMapType = MapType.satellite;
+  late Forest forest;
 
   bool isOrbitPlaying = false;
   bool connectionStatus = false;
@@ -54,142 +44,292 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    ssh = widget.ssh;
+    ssh = ref.read(sshProvider);
+    forest = ref.read(forestProvider.notifier).state!;
   }
 
   @override
   Widget build(BuildContext context) {
-    double horizontalPadding = Constants.cardPadding(context);
-
-    Forest forest = widget.forest;
 
     double lat = forest.lat;
     double lon = forest.lon;
 
-    return MultiRepositoryProvider(
-      providers: [
-        RepositoryProvider(create: (context) =>
-            AqiRepository(AqiDataProvider(),
-                DbProvider<AqiModel>(dbService: DbService(key: Constants.aqiDb,
-                    adapter: AqiModelAdapter())),AqiModel.fromMap)),
-        RepositoryProvider(create: (context) =>
-            AqiRepository(HistAqiDataProvider(),
-                DbProvider<HistAqiModel>(dbService: DbService(key: Constants.histAqiDb,
-                    adapter: HistAqiModelAdapter())),HistAqiModel.fromMap)),
-        RepositoryProvider(create: (context) =>
-            FireRepository(NasaFirmsDataProvider(),
-                DbProvider(dbService: DbService(key: Constants.fireDb, adapter: FireModelAdapter())))
-        ),
+    index = ref.watch(dashboardIndexProvider);
+    final mapIndex = ref.watch(mapIndexProvider);
+    final selectedMapType = maps[mapIndex];
 
-      ],
-      child: MultiBlocProvider(
-        providers: [
-          BlocProvider(create: (context) => AqiBloc(context.read<AqiRepository<AqiModel>>())),
-          BlocProvider(create: (context) => HistAqiBloc(context.read<AqiRepository<HistAqiModel>>())),
-          BlocProvider(create: (context) => FireBloc(context.read<FireRepository>())),
-        ],
-        child: Builder(
-          builder: (context) {
+    Color textColour = (mapIndex!=1)?Colors.white:Colors.black;
 
-            final pages = [
-              InfoScreen(forest: forest,ssh:ssh),
-              BiodivScreen(forest: forest,ssh:ssh),
-              EnviroScreen(forest: forest,ssh:ssh),
-              CataScreen(forest: forest,ssh:ssh)
-            ];
-
-            return Scaffold(
-              backgroundColor: Themes.bg,
-              extendBodyBehindAppBar: true,
-              appBar: AppBar(
-                backgroundColor: Colors.transparent,
-                leading: IconButton(
-                  onPressed: () { Navigator.pop(context); },
-                  icon: Icon(Icons.arrow_back,color: Colors.white,),
-                ),
-                title: Padding(
-                  padding: EdgeInsets.only(top: Constants.totalHeight(context)*0.01),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Column(
+    return PopScope(
+      onPopInvoked: (didPop) {
+        ref.read(dashboardIndexProvider.notifier).state = 0;
+        ref.read(mapIndexProvider.notifier).state = 0;
+      },
+      child: SafeArea(
+        child: Scaffold(
+            backgroundColor: Themes.bg,
+            extendBodyBehindAppBar: true,
+            body: CustomScrollView(
+                slivers: [
+                  SliverAppBar(
+                    backgroundColor: (mapIndex!=1)?Color(0xff364935):Color(0xffCEF1DC),
+                    leading: IconButton(
+                      onPressed: () { Navigator.pop(context); },
+                      icon: Icon(Icons.arrow_back,color: textColour,),
+                    ),
+                    expandedHeight: Constants.totalHeight(context)*0.3,
+                    pinned: true,
+                    flexibleSpace: FlexibleSpaceBar(
+                      titlePadding: EdgeInsets.zero,
+                      background: Stack(
+                        alignment: Alignment.topCenter,
                         children: [
-                          Text('Latitude',style: Fonts.bold.copyWith(fontSize: Constants.totalHeight(context)*0.02,color: Colors.white),),
-                          SizedBox(height: Constants.totalHeight(context)*0.01,),
-                          Text(lat.toString(),style: Fonts.bold.copyWith(fontSize: Constants.totalHeight(context)*0.02,color: Colors.white),),
+                          GoogleMap(
+                            key: ValueKey(selectedMapType),
+                            mapType: selectedMapType,
+                            // onMapCreated: (GoogleMapController controller) {
+                            //   mapController = controller;
+                            // },
+                            initialCameraPosition: CameraPosition(
+                                target: LatLng(lat,lon),
+                                zoom: Constants.mapScale
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(top: Constants.totalHeight(context)*0.01),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                SizedBox(height: Constants.totalWidth(context)*0.15,),
+                                Column(
+                                  children: [
+                                    Text('Latitude',style: Fonts.bold.copyWith(fontSize: Constants.totalHeight(context)*0.02,color: textColour),),
+                                    SizedBox(height: Constants.totalHeight(context)*0.01,),
+                                    Text(lat.toString(),style: Fonts.bold.copyWith(fontSize: Constants.totalHeight(context)*0.02,color:textColour),),
+                                  ],
+                                ),
+                                Column(
+                                  children: [
+                                    Text('Longitude',style: Fonts.bold.copyWith(fontSize: Constants.totalHeight(context)*0.02,color: textColour),),
+                                    SizedBox(height: Constants.totalHeight(context)*0.01,),
+                                    Text(lon.toString(),style: Fonts.bold.copyWith(fontSize: Constants.totalHeight(context)*0.02,color: textColour),),
+                                  ],
+                                ),
+                                SizedBox(width: Constants.totalHeight(context)*0.005,)
+                              ],
+                            ),
+                          ),
                         ],
                       ),
-                      Column(
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          Text('Longitude',style: Fonts.bold.copyWith(fontSize: Constants.totalHeight(context)*0.02,color: Colors.white),),
-                          SizedBox(height: Constants.totalHeight(context)*0.01,),
-                          Text(lon.toString(),style: Fonts.bold.copyWith(fontSize: Constants.totalHeight(context)*0.02,color: Colors.white),),
+                          SizedBox(width: Constants.totalWidth(context)*0.01,),
+                          SizedBox(
+                            width: Constants.totalWidth(context)*0.5,
+                            child: Text(
+                              forest.name,
+                              style: Fonts.bold.copyWith(
+                                  fontSize: Constants.totalWidth(context)*0.04,
+                                  color: textColour),
+                              maxLines: 2,
+                              // strokeColor: Colors.black,strokeWidth: 2,
+                            ),
+                          ),
+                          // SizedBox(width: Constants.totalWidth(context)*0.1,),
+                          TextButton(
+                            onPressed: (){
+                              if(ssh.isConnected == false){
+                                showSnackBar(context, 'Not connected to the rig', Themes.error);
+                                return;
+                              }
+                              isOrbitPlaying?stopOrbit(lat, lon): playOrbit(lat, lon);
+                            },
+                            child: Tooltip(
+                              message: isOrbitPlaying?'Stop Orbit':'Play Orbit',
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.all(Radius.circular(Constants.totalWidth(context)*0.05)),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: Colors.black.withOpacity(0.5),
+                                          blurRadius: 5
+                                      )]
+                                ),
+                                child: CircleAvatar(
+                                  radius: Constants.totalWidth(context)*0.035,
+                                  backgroundColor: Colors.white,
+                                  child: isOrbitPlaying?
+                                  Center(child: Icon(Icons.stop,color: Colors.black,))
+                                      :Padding(
+                                    padding: EdgeInsets.all(Constants.totalWidth(context)*0.015),
+                                    child: ImageIcon(AssetImage('assets/logos/orbit.png'),color: Colors.black,),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
-                      SizedBox(width: Constants.totalHeight(context)*0.005,)
-                    ],
+                    ),
                   ),
+                  SliverToBoxAdapter(
+                    child: Column(
+                      children: [
+                        // Stack(
+                        //   alignment: AlignmentDirectional.bottomCenter,
+                        //   children: [
+                        //   ],
+                        // ),
+                        SizedBox(height: Constants.cardMargin(context),),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Themes.mapInactiveBg,
+                            borderRadius: BorderRadius.circular(Constants.totalWidth(context)*0.075),
+                          ),
+                          padding: EdgeInsets.zero,
+                          child: ToggleButtons(
+                            borderRadius: BorderRadius.circular(Constants.totalWidth(context)*0.075),
+                            isSelected: List.generate(labels.length, (i) => i == mapIndex),
+                            onPressed: (index) {
+                              setState(() {
+                                ref.read(mapIndexProvider.notifier).state = index;
+                                // selectedMapType = maps[index];
+                                print('Selected: $selectedMapType');
+                              });
+                            },
+                            selectedColor: Themes.mapActiveText,
+                            selectedBorderColor: Themes.mapActiveBg,
+                            borderColor: Themes.mapActiveBg,
+                            color: Themes.mapInactiveText,
+                            fillColor: Themes.mapActiveBg,
+                            splashColor: Colors.transparent,
+                            constraints: BoxConstraints(minHeight: Constants.totalWidth(context)*0.1, minWidth: Constants.totalWidth(context)*0.25),
+                            children: labels
+                                .map((label) => Text(
+                              label,
+                              style: Fonts.semiBold,
+                            ))
+                                .toList(),
+                          ),
+                        ),
+                        SizedBox(height: Constants.cardMargin(context),),
+                        Padding(padding: EdgeInsets.symmetric(horizontal: Constants.cardPadding(context)),
+                          child: Column(
+                            children: [
+                              ConnectionBar(connectionStatus: ssh.isConnected),
+                              SizedBox(height: 0.5*Constants.cardMargin(context),),
+                              Row(
+                                children: [
+                                  Text(title[index], style: Fonts.bold.copyWith(fontSize: Constants.totalHeight(context)*0.03,color: Themes.secondaryText),),
+                                ],
+                              ),
+                              SizedBox(height: Constants.cardMargin(context),),
+                              pages[index],
+                              SizedBox(height: Constants.bottomGap(context)),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  )
+                ]
+            ),
+            floatingActionButton: FloatingActionButton(
+              tooltip: 'Voice Assistant',
+              shape: CircleBorder(),
+              backgroundColor: Colors.transparent,
+              onPressed: () {
+
+              },
+              // child: Image.asset(
+              //   'assets/voice/voice.png',
+              //   width: Constants.totalHeight(context) * 0.2,
+              //   height: Constants.totalHeight(context) * 0.2,
+              // ),
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(Constants.totalHeight(context) * 0.2)),
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.black.withOpacity(0.5),
+                          blurRadius: 5,
+                          spreadRadius: 2
+                      )
+                    ]
                 ),
-                centerTitle: true,
-              ),
-              body: SingleChildScrollView(
-              ),
-                floatingActionButton: FloatingActionButton(
-                  // shape: CircleBorder(),
-                  backgroundColor: Colors.transparent,
-                  onPressed: () {
-            
-                  },
-                  // child: Image.asset(
-                  //   'assets/voice/voice.png',
-                  //   width: Constants.totalHeight(context) * 0.2,
-                  //   height: Constants.totalHeight(context) * 0.2,
-                  // ),
-                  // child: RiveAnimation.asset(''),
+                child: Lottie.asset(
+                    'assets/voice/anim.json',
+                    width: Constants.totalHeight(context) * 0.2,
+                    height: Constants.totalHeight(context) * 0.2,
+                    fit: BoxFit.contain,
+                    animate: false,
+                    repeat: false
                 ),
-                floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-                extendBody: true,
-                bottomNavigationBar: BottomAppBar(
-                  padding: EdgeInsets.symmetric(horizontal: 10),
-                  height: 60,
-                  color: Colors.black,
-                  notchMargin: 6,
-                  shape: const CircularNotchedRectangle(),
-                  child: Row(
-                    // mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      buildTabItem(index: 0, icon: Icons.info),
-                      buildTabItem(index: 1, icon: Icons.pets),
-                      SizedBox(width: 50,),
-                      buildTabItem(index: 2, icon: Icons.air),
-                      buildTabItem(index: 3, icon: Icons.local_fire_department),
-                    ],
-                  ),
-                )
-            );
-          }
+              ),
+              // child: RiveAnimation.asset(
+              //     fit: BoxFit.contain,
+              //   'assets/voice/mic.riv',
+              //   artboard: 'frame_01',
+              //   stateMachines: ['sm_01'],
+              //     onInit: (artboard) {
+              //       StateMachineController? controller=
+              //       StateMachineController.fromArtboard(artboard,'sm_01');
+              //
+              //       artboard.addController(controller!);
+              //
+              //       _controller = controller;
+              //
+              //       startRecord = _controller.findSMI<SMITrigger>('start record');
+              //       startProcess = _controller.findSMI<SMITrigger>('start process');
+              //       endRecord = _controller.findSMI<SMITrigger>('end record');
+              //     }
+              // ),
+            ),
+            floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+            extendBody: true,
+            bottomNavigationBar: BottomAppBar(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              height: 60,
+              color: Colors.black,
+              notchMargin: 6,
+              shape: const CircularNotchedRectangle(),
+              child: Row(
+                // mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  buildTabItem(index: 0, icon: Icons.info),
+                  buildTabItem(index: 1, icon: Icons.pets),
+                  SizedBox(width: 50,),
+                  buildTabItem(index: 2, icon: Icons.air),
+                  buildTabItem(index: 3, icon: Icons.local_fire_department),
+                ],
+              ),
+            )
         ),
       ),
     );
   }
 
-  void onChangedTab(int newIndex) {
-    setState(() {
-      index = newIndex;
-    });
-  }
+  // void onChangedTab(int newIndex) {
+  //   setState(() {
+  //     index = newIndex;
+  //   });
+  // }
 
   Widget buildTabItem({required int index, required IconData icon}){
     final isSelected = index == this.index;
     return IconButton(
-        onPressed: ()=>onChangedTab(index),
+        onPressed: ()=>onChangedTab(ref, dashboardIndexProvider, index),
         tooltip: title[index],
         icon: Icon(icon, color: isSelected?Themes.logoActive:Themes.logoInactive,weight: 400,)
     );
   }
 
   playOrbit(lat, lon) async{
+    // ssh.sendBalloon(context, BalloonEntity.orbitBalloon(ref.read(forestProvider.notifier).state!, '', Constants.orbitScale, 0, 0));
     setState(() {
       isOrbitPlaying = true;
     });

@@ -1,10 +1,12 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../constants/strings.dart';
+import '../ref/api_provider.dart';
 
 class NasaFirmsDataProvider{
-  Future<Response> getFireData(String country, int range) async {
-    final Dio dio = Dio();
+  Future<Response> getFireData(WidgetRef ref, String country, int range) async {
+    final Dio dio = ref.read(dioProvider);
     try{
       String url = 'https://firms.modaps.eosdis.nasa.gov/api/country/csv';
       DateTime today = DateTime.now();
@@ -13,7 +15,7 @@ class NasaFirmsDataProvider{
           '$url/${Constants.nasaFirmsApiKey}/VIIRS_SNPP_NRT/$country/$range/${today.year}-${today.month}-${today.day}'
       );
 
-      // print(res.data);
+      print(res.data);
       return res;
     } catch(e){
       print(e);

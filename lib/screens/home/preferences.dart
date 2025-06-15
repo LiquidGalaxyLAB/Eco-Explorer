@@ -1,23 +1,29 @@
+import 'dart:convert';
+
 import 'package:eco_explorer/constants/fonts.dart';
 import 'package:eco_explorer/constants/strings.dart';
 import 'package:eco_explorer/constants/theme.dart';
+import 'package:eco_explorer/ref/values_provider.dart';
 import 'package:eco_explorer/widgets/primary_button.dart';
+import 'package:eco_explorer/widgets/snackbar.dart';
 import 'package:eco_explorer/widgets/text_box.dart';
 import 'package:eco_explorer/widgets/theme_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../ref/instance_provider.dart';
 import '../../utils/connection/ssh.dart';
+import '../qr_code_scanner.dart';
 
-class Preferences extends StatefulWidget {
-  final Ssh ssh;
-  const Preferences({super.key, required this.ssh});
+class Preferences extends ConsumerStatefulWidget {
+  const Preferences({super.key});
 
   @override
-  State<Preferences> createState() => _PreferencesState();
+  ConsumerState<Preferences> createState() => _PreferencesState();
 }
 
-class _PreferencesState extends State<Preferences> with TickerProviderStateMixin{
+class _PreferencesState extends ConsumerState<Preferences> with TickerProviderStateMixin{
 
   late TabController _tabController;
 
@@ -37,7 +43,7 @@ class _PreferencesState extends State<Preferences> with TickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     return Column(
-        mainAxisSize: MainAxisSize.min,
+      mainAxisSize: MainAxisSize.min,
       children: [
         TabBar(
             controller: _tabController,
@@ -46,30 +52,29 @@ class _PreferencesState extends State<Preferences> with TickerProviderStateMixin
             tabs: [
               Tab(text: "LG Connection"),
               Tab(text: "LG Commands")
-        ]),
+            ]),
         SizedBox(height: Constants.cardMargin(context),),
-          Expanded(
-    child: TabBarView(
-      controller: _tabController,
-      children: [
-        LgConnection(ssh: widget.ssh,), LgCommands(ssh: widget.ssh,)
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              LgConnection(), LgCommands()
+            ],
+          ),
+        )
       ],
-    ),
-          )
-    ],
     );
   }
 }
 
-class LgConnection extends StatefulWidget {
-  final Ssh ssh;
-  const LgConnection({super.key, required this.ssh});
+class LgConnection extends ConsumerStatefulWidget {
+  const LgConnection({super.key});
 
   @override
-  State<LgConnection> createState() => _LgConnectionState();
+  ConsumerState<LgConnection> createState() => _LgConnectionState();
 }
 
-class _LgConnectionState extends State<LgConnection> {
+class _LgConnectionState extends ConsumerState<LgConnection> {
   final TextEditingController _ipController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -81,7 +86,7 @@ class _LgConnectionState extends State<LgConnection> {
   @override
   void initState() {
     super.initState();
-    ssh = widget.ssh;
+    ssh = ref.read(sshProvider);
     _loadSettings();
   }
 
@@ -141,7 +146,9 @@ class _LgConnectionState extends State<LgConnection> {
             child: Column(
               children: [
                 GestureDetector(
-                    onTap: () {},
+                    onTap: () async{
+                      await qrCodeScanned();
+                    },
                     child: Container(
                       padding: EdgeInsets.all(Constants.cardPadding(context)),
                       decoration: BoxDecoration(
@@ -167,11 +174,11 @@ class _LgConnectionState extends State<LgConnection> {
                       width: Constants.totalWidth(context),
                       height: 1,
                       decoration: BoxDecoration(
-                        color: Themes.primaryButtonBg
+                          color: Themes.primaryButtonBg
                       ),
                     ),
                     Container(
-                      color: Themes.cardBg,
+                        color: Themes.cardBg,
                         padding: EdgeInsets.symmetric(horizontal: Constants.cardPadding(context)),
                         child: Text('OR',style: Fonts.bold.copyWith(fontSize:  Constants.totalWidth(context) * 0.04,color: Themes.cardText),)
                     )
@@ -182,7 +189,7 @@ class _LgConnectionState extends State<LgConnection> {
                   children: [
                     for (int i = 0; i < labels.length; i++) ...[
                       TextInputField(
-                          label: labels[i], hint: hints[i], controller: controllers[i], i: i, prefixIcon: icons[i],
+                        label: labels[i], hint: hints[i], controller: controllers[i], i: i, prefixIcon: icons[i],
                       ),
                       SizedBox(height: Constants.cardMargin(context),)
                     ]
@@ -195,7 +202,7 @@ class _LgConnectionState extends State<LgConnection> {
                       print('object');
                       await _saveSettings();
                       // if(context.mounted) {
-                        await ssh.connectToLG(context);
+                      await ssh.connectToLG(context);
                       // }
                     }
                 ),
@@ -207,24 +214,63 @@ class _LgConnectionState extends State<LgConnection> {
       ),
     );
   }
+
+  Future<void> qrCodeScanned() async {
+    try {
+      final result = await Navigator.push(context, MaterialPageRoute(builder: (context)=>QrCodeScanner()));
+
+      if (result is Map) {
+        final json = result['result'];
+        print(json);
+        Map jsonDecoded = jsonDecode(json);
+
+        const requiredKeys = ['ip', 'username', 'port', 'password', 'screens'];
+
+        for (final key in requiredKeys) {
+          if (!jsonDecoded.containsKey(key)) {
+            throw FormatException('Missing required key: $key');
+          }
+        }
+
+        print(jsonDecoded['server'].toString());
+        print(jsonDecoded['ip'].toString());
+        print(jsonDecoded['username'].toString());
+        print(jsonDecoded['port'].toString());
+        print(jsonDecoded['password'].toString());
+        print(jsonDecoded['screens'].toString());
+
+        setState(() {
+          _ipController.text = jsonDecoded['ip'].toString();
+          _usernameController.text = jsonDecoded['username'].toString();
+          _passwordController.text = jsonDecoded['password'].toString();
+          _sshPortController.text = jsonDecoded['port'].toString();
+          _rigsController.text = jsonDecoded['screens'].toString();
+        });
+
+        await _saveSettings();
+        await ssh.connectToLG(context);
+      }
+    }catch (e) {
+      showSnackBar(context, e.toString(), Themes.error);
+    }
+  }
 }
 
-class LgCommands extends StatefulWidget {
-  final Ssh ssh;
-  const LgCommands({super.key, required this.ssh});
+class LgCommands extends ConsumerStatefulWidget {
+  const LgCommands({super.key});
 
   @override
-  State<LgCommands> createState() => _LgCommandsState();
+  ConsumerState<LgCommands> createState() => _LgCommandsState();
 }
 
-class _LgCommandsState extends State<LgCommands> {
+class _LgCommandsState extends ConsumerState<LgCommands> {
 
   late Ssh ssh;
 
   @override
   void initState() {
     super.initState();
-    ssh = widget.ssh;
+    ssh = ref.read(sshProvider);
   }
 
   @override
@@ -236,7 +282,10 @@ class _LgCommandsState extends State<LgCommands> {
           () => ssh.resetRefresh(context),
           () => ssh.relaunchLG(context),
           () => ssh.rebootLG(context),
-          () => ssh.clearKml(context),
+          () {
+        ssh.cleanBalloon(context);
+        return ssh.clearKml(context);
+      },
           () => ssh.powerOff(context),
     ];
     return SingleChildScrollView(
@@ -269,7 +318,7 @@ class _LgCommandsState extends State<LgCommands> {
                         ),
                       )
                   ),
-                  (i!=commands.length)?SizedBox(height: Constants.cardMargin(context),):SizedBox(),
+                  (i!=commands.length-1)?SizedBox(height: Constants.cardMargin(context),):SizedBox(),
                 ]
               ],
             ),

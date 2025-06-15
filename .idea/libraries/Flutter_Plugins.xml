@@ -17,6 +17,10 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/connectivity_plus-6.1.4" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/path_provider-2.1.5" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/shared_preferences_android-2.4.10" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/audioplayers-6.4.0" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/speech_to_text-7.0.0" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/audioplayers_web-5.1.0" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/qr_code_scanner_plus-2.0.10+1" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

@@ -56,8 +56,8 @@ class Constants{
   static const histAqiDb = 'HIST_AQI';
   static const fireDb = 'FIRE';
 
-  static const openWeatherApiKey = '10aad7c7eadcf036548ea217470e5000';
-  static const nasaFirmsApiKey = '77e660288acb30c53241a3d9792253b5';
+  static const openWeatherApiKey = '';
+  static const nasaFirmsApiKey = '';
   static const groqApiKey = '';
   static const deepgramApiKey = '';
 }

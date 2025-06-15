@@ -40,11 +40,14 @@ dependencies:
   google_fonts:
   stroke_text:
   lottie:
-  dotlottie_loader:
+  flutter_neumorphic_plus:
+  #  rive:
+  speech_to_text:
   google_maps_flutter:
   google_maps_flutter_android:
-  flutter_bloc:
-  http:
+  flutter_riverpod:
+  riverpod_annotation:
+  #  flutter_bloc:
   dio:
   hive_flutter:
   hive:
@@ -53,8 +56,14 @@ dependencies:
   csv:
   groq:
   deepgram_speech_to_text:
+  audioplayers:
   fast_noise:
   screenshot:
+  image:
+  carousel_slider:
+  qr_code_scanner_plus:
+  flutter_joystick:
+  throttling:
 
 dev_dependencies:
   flutter_test:
