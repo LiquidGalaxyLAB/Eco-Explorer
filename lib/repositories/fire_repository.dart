@@ -1,4 +1,6 @@
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../models/fire/fire_model.dart';
 import '../providers/local/db_provider.dart';
 import '../providers/nasa_firms_data_provider.dart';
@@ -10,13 +12,13 @@ class FireRepository{
 
   FireRepository(this.dataProvider, this.dbProvider);
 
-  Future<FireModel> getFireData(String country, int range) async {
+  Future<FireModel> getFireData(WidgetRef ref, String country, int range) async {
 
     final bool isConnected = await InternetConnectivity().checkInternetConnection();
 
     if(isConnected){
       try{
-        final response = await dataProvider.getFireData(country, range);
+        final response = await dataProvider.getFireData(ref, country, range);
 
         if (response.statusCode == 200) {
           FireModel fireModel = FireModel.fromCsv(response.data);

@@ -1,4 +1,10 @@
 # This is a generated file; do not edit or check into version control.
+audioplayers=/Users/ssdosaofc/.pub-cache/hosted/pub.dev/audioplayers-6.4.0/
+audioplayers_android=/Users/ssdosaofc/.pub-cache/hosted/pub.dev/audioplayers_android-5.2.0/
+audioplayers_darwin=/Users/ssdosaofc/.pub-cache/hosted/pub.dev/audioplayers_darwin-6.2.0/
+audioplayers_linux=/Users/ssdosaofc/.pub-cache/hosted/pub.dev/audioplayers_linux-4.2.0/
+audioplayers_web=/Users/ssdosaofc/.pub-cache/hosted/pub.dev/audioplayers_web-5.1.0/
+audioplayers_windows=/Users/ssdosaofc/.pub-cache/hosted/pub.dev/audioplayers_windows-4.2.0/
 connectivity_plus=/Users/ssdosaofc/.pub-cache/hosted/pub.dev/connectivity_plus-6.1.4/
 flutter_plugin_android_lifecycle=/Users/ssdosaofc/.pub-cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.28/
 google_maps_flutter=/Users/ssdosaofc/.pub-cache/hosted/pub.dev/google_maps_flutter-2.12.2/
@@ -10,9 +16,11 @@ path_provider_android=/Users/ssdosaofc/.pub-cache/hosted/pub.dev/path_provider_a
 path_provider_foundation=/Users/ssdosaofc/.pub-cache/hosted/pub.dev/path_provider_foundation-2.4.1/
 path_provider_linux=/Users/ssdosaofc/.pub-cache/hosted/pub.dev/path_provider_linux-2.2.1/
 path_provider_windows=/Users/ssdosaofc/.pub-cache/hosted/pub.dev/path_provider_windows-2.3.0/
+qr_code_scanner_plus=/Users/ssdosaofc/.pub-cache/hosted/pub.dev/qr_code_scanner_plus-2.0.10+1/
 shared_preferences=/Users/ssdosaofc/.pub-cache/hosted/pub.dev/shared_preferences-2.5.3/
 shared_preferences_android=/Users/ssdosaofc/.pub-cache/hosted/pub.dev/shared_preferences_android-2.4.10/
 shared_preferences_foundation=/Users/ssdosaofc/.pub-cache/hosted/pub.dev/shared_preferences_foundation-2.5.4/
 shared_preferences_linux=/Users/ssdosaofc/.pub-cache/hosted/pub.dev/shared_preferences_linux-2.4.1/
 shared_preferences_web=/Users/ssdosaofc/.pub-cache/hosted/pub.dev/shared_preferences_web-2.4.3/
 shared_preferences_windows=/Users/ssdosaofc/.pub-cache/hosted/pub.dev/shared_preferences_windows-2.4.1/
+speech_to_text=/Users/ssdosaofc/.pub-cache/hosted/pub.dev/speech_to_text-7.0.0/

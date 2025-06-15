@@ -12,6 +12,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../constants/theme.dart';
+import '../kml/balloon_entity.dart';
 
 class Ssh{
   late String _host;
@@ -263,4 +264,13 @@ class Ssh{
     }
   }
 
+  cleanBalloon(context) async {
+    try {
+      await _client!.run(
+          "echo '${BalloonEntity.blankBalloon()}' > /var/www/html/kml/slave_${Constants.rightRig(int.parse(_numberOfRigs))}.kml");
+    } catch (error) {
+      await reconnectToLG(context);
+      await cleanBalloon(context);
+    }
+  }
 }

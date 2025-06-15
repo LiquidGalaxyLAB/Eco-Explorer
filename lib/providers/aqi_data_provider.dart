@@ -1,17 +1,20 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../constants/strings.dart';
+import '../ref/api_provider.dart';
 
-const apiKey = Constants.openWeatherApiKey;
+// const apiKey = Constants.openWeatherApiKey;
+// const apiKey = Share;
 
 abstract class IAqiDataProvider {
-  Future<Response> getPollutionData(double lat, double lon);
+  Future<Response> getPollutionData(WidgetRef ref, double lat, double lon);
 }
 
 class AqiDataProvider implements IAqiDataProvider {
   @override
-  Future<Response> getPollutionData(double lat, double lon) async{
-    final Dio dio = Dio();
+  Future<Response> getPollutionData(WidgetRef ref, double lat, double lon) async{
+    final Dio dio = ref.read(dioProvider);
 
     try{
       String url = 'http://api.openweathermap.org/data/2.5/air_pollution?lat=$lat&lon=$lon&appid=${Constants.openWeatherApiKey}';
@@ -35,8 +38,8 @@ class AqiDataProvider implements IAqiDataProvider {
 
 class HistAqiDataProvider implements IAqiDataProvider {
   @override
-  Future<Response> getPollutionData(double lat, double lon) async{
-    final Dio dio = Dio();
+  Future<Response> getPollutionData(WidgetRef ref, double lat, double lon) async{
+    final Dio dio = ref.read(dioProvider);
 
     int getUnixTimestamp(DateTime date) => date.millisecondsSinceEpoch ~/ 1000;
 
@@ -46,10 +49,8 @@ class HistAqiDataProvider implements IAqiDataProvider {
     final int end = getUnixTimestamp(now);
     final int start = getUnixTimestamp(tenDaysAgo);
 
-    print('$start $end');
 
     try{
-      print('Fetching AQI data for: lat=$lat, lon=$lon');
       String url = 'http://api.openweathermap.org/data/2.5/air_pollution/history?lat=$lat&lon=$lon&start=$start&end=$end&appid=${Constants.openWeatherApiKey}';
 
       final res = await dio.get(url,
@@ -61,8 +62,6 @@ class HistAqiDataProvider implements IAqiDataProvider {
       //   'appid': apiKey
       // }
       );
-
-      print(res.data);
       return res;
     }catch (e, stackTrace) {
       if (e is DioException) {

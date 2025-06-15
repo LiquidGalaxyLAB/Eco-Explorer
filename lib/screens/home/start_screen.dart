@@ -1,31 +1,29 @@
-import 'package:eco_explorer/events/forest_event.dart';
 import 'package:eco_explorer/models/forests_model.dart';
+import 'package:eco_explorer/ref/values_provider.dart';
 import 'package:eco_explorer/widgets/forest_element.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../bloc/forest_bloc.dart';
 import '../../constants/fonts.dart';
 import '../../constants/strings.dart';
 import '../../constants/theme.dart';
+import '../../ref/api_provider.dart';
 import '../../states/forest_state.dart';
-import '../../utils/connection/ssh.dart';
 
-class StartScreen extends StatefulWidget {
-  final Ssh ssh;
-  const StartScreen({super.key, required this.ssh});
+class StartScreen extends ConsumerStatefulWidget {
+  const StartScreen({super.key});
 
   @override
-  State<StartScreen> createState() => _StartScreenState();
+  ConsumerState<StartScreen> createState() => _StartScreenState();
 }
 
-class _StartScreenState extends State<StartScreen> {
+class _StartScreenState extends ConsumerState<StartScreen> {
   final TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    context.read<ForestBloc>().add(ForestFetched());
+    ref.read(forestNotifierProvider.notifier).fetchForests();
     searchController.addListener(() {
       setState(() {});
     });
@@ -37,14 +35,19 @@ class _StartScreenState extends State<StartScreen> {
     super.dispose();
   }
   @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<ForestBloc, ForestState>(
-        builder: (context,state){
+  Widget build(BuildContext context,) {
+    final forestState = ref.watch(forestNotifierProvider);
+
+    return forestState.when(
+        data: (state){
           if(state is ForestLoading){
             return Center(child: CircularProgressIndicator(color: Themes.cardText),);
           }
           if(state is ForestSuccess){
             List<Forest> forests = state.visibleForests.forests;
+            Future.microtask((){
+              ref.read(forestListProvider.notifier).state = forests;
+            });
 
             return Column(
               children: [
@@ -65,43 +68,44 @@ class _StartScreenState extends State<StartScreen> {
                     ),
                   ),
                   onChanged: (query) {
-                    final bloc = context.read<ForestBloc>();
                     if (query.isEmpty) {
-                      bloc.add(ForestFetched());
+                      ref.read(forestNotifierProvider.notifier).fetchForests();
                     } else {
-                      bloc.add(ForestSearchQueryChanged(query));
+                      ref.read(forestNotifierProvider.notifier).searchForests(query);
                     }
                   },
                 ),
 
-                 SizedBox(height: Constants.totalHeight(context) * 0.02),
+                SizedBox(height: Constants.totalHeight(context) * 0.02),
 
                 (forests.isNotEmpty)?Expanded(
-                  child: ListView.builder(
-                    itemCount: forests.length,
-                    itemBuilder: (context, i) {
-                      return Column(
-                        children: [
-                          ForestElement(
-                            index: i,
-                            forest: forests[i], ssh: widget.ssh,
-                          ),
-                          SizedBox(
-                            height:
-                            // i == forests.length - 1 ? Constants.bottomGap(context) :
-                            Constants.homeCardMargin(context),
-                          ),
-                        ],
-                      );
-                    },
-          )
+                    child: ListView.builder(
+                      itemCount: forests.length,
+                      itemBuilder: (context, i) {
+                        return Column(
+                          children: [
+                            ForestElement(
+                              index: i,
+                              forest: forests[i],
+                            ),
+                            SizedBox(
+                              height:
+                              // i == forests.length - 1 ? Constants.bottomGap(context) :
+                              Constants.homeCardMargin(context),
+                            ),
+                          ],
+                        );
+                      },
+                    )
                 ):Center(child: Text('No data found', style: Fonts.bold.copyWith(fontSize: Constants.totalHeight(context) * 0.02,color: Themes.cardText),)),
               ],
             );
           }
 
           return Center();
-        }
+        },
+        error: (error,_)=> Center(child: Text(error.toString(), style: Fonts.bold.copyWith(fontSize: Constants.totalHeight(context) * 0.02,color: Themes.cardText),)),
+        loading: ()=> Center(child: CircularProgressIndicator(color: Themes.cardText),)
     );
   }
 }

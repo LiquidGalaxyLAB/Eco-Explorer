@@ -1,3 +1,5 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../providers/aqi_data_provider.dart';
 import '../providers/local/db_provider.dart';
 import '../utils/connection/internet_connectivity.dart';
@@ -8,14 +10,14 @@ class AqiRepository<M>{
   final M Function(Map<String, dynamic>) fromMap;
   AqiRepository(this.aqiDataProvider,this.aqiDbProvider, this.fromMap);
 
-  Future<M> getPollutionData(double lat, double lon) async {
+  Future<M> getPollutionData(WidgetRef ref, double lat, double lon) async {
 
     final bool isConnected = await InternetConnectivity().checkInternetConnection();
     print('$isConnected');
 
     if(isConnected){
       try{
-        final response = await aqiDataProvider.getPollutionData(lat,lon);
+        final response = await aqiDataProvider.getPollutionData(ref, lat,lon);
 
         if (response.statusCode == 200) {
           M aqiModel = fromMap(response.data);
