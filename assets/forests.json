@@ -66,7 +66,7 @@
         {
             "name": "New Guinea Rainforest",
             "path": "guinea",
-            "area": "76808",
+            "area": "288000",
             "desc":"The New Guinea Rainforest, the third largest tropical rainforest globally, covers much of the island of New Guinea, which is divided between Indonesia and Papua New Guinea. Characterized by a humid tropical climate, the region features extensive lowland and montane forests, alluvial plains, and swampy areas. The rainforest is exceptionally rich in flora and fauna, including marsupials, bats, rodents, and hundreds of bird species such as the southern cassowary. Despite its ecological value, only a small percentage of the forest is under protection, though large tracts remain intact, making it one of the most significant centers of biodiversity in the Australasian realm.",
             "max_lat":"0",
             "min_lat":"-11",

@@ -41,6 +41,7 @@ dependencies:
   stroke_text:
   lottie:
   flutter_neumorphic_plus:
+  animated_text_kit:
   #  rive:
   speech_to_text:
   google_maps_flutter:
@@ -53,6 +54,7 @@ dependencies:
   hive:
   connectivity_plus:
   fl_chart:
+  syncfusion_flutter_charts:
   csv:
   groq:
   deepgram_speech_to_text:

@@ -20,6 +20,12 @@
       "languageVersion": "3.3"
     },
     {
+      "name": "animated_text_kit",
+      "rootUri": "file:///Users/ssdosaofc/.pub-cache/hosted/pub.dev/animated_text_kit-4.2.3",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "archive",
       "rootUri": "file:///Users/ssdosaofc/.pub-cache/hosted/pub.dev/archive-4.0.7",
       "packageUri": "lib/",
@@ -458,6 +464,12 @@
       "languageVersion": "3.0"
     },
     {
+      "name": "intl",
+      "rootUri": "file:///Users/ssdosaofc/.pub-cache/hosted/pub.dev/intl-0.20.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
       "name": "io",
       "rootUri": "file:///Users/ssdosaofc/.pub-cache/hosted/pub.dev/io-1.0.5",
       "packageUri": "lib/",
@@ -818,6 +830,18 @@
       "languageVersion": "3.0"
     },
     {
+      "name": "syncfusion_flutter_charts",
+      "rootUri": "file:///Users/ssdosaofc/.pub-cache/hosted/pub.dev/syncfusion_flutter_charts-29.2.11",
+      "packageUri": "lib/",
+      "languageVersion": "3.7"
+    },
+    {
+      "name": "syncfusion_flutter_core",
+      "rootUri": "file:///Users/ssdosaofc/.pub-cache/hosted/pub.dev/syncfusion_flutter_core-29.2.11",
+      "packageUri": "lib/",
+      "languageVersion": "3.7"
+    },
+    {
       "name": "synchronized",
       "rootUri": "file:///Users/ssdosaofc/.pub-cache/hosted/pub.dev/synchronized-3.3.1",
       "packageUri": "lib/",
@@ -932,7 +956,7 @@
       "languageVersion": "3.7"
     }
   ],
-  "generated": "2025-06-15T17:30:04.092651Z",
+  "generated": "2025-06-22T18:39:04.014606Z",
   "generator": "pub",
   "generatorVersion": "3.7.0",
   "flutterRoot": "file:///Users/ssdosaofc/flutter",

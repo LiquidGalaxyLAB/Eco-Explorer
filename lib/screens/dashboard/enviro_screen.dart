@@ -23,6 +23,8 @@ import '../../widgets/failure.dart';
 import '../../widgets/line_chart.dart';
 import 'package:screenshot/screenshot.dart';
 
+import '../../widgets/pyramid_chart.dart';
+
 class EnviroScreen extends ConsumerStatefulWidget {
   EnviroScreen({super.key});
 
@@ -105,14 +107,9 @@ class _EnviroScreenState extends ConsumerState<EnviroScreen> {
                                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                                     children: [
                                       SizedBox(
-                                        width: Constants.totalWidth(context) * 0.25,
-                                        height:Constants.totalWidth(context) * 0.25,
-                                        child: CircularProgressIndicator(
-                                          value: (aqi <= 5)? (aqi/5) : 1,
-                                          color: aqiColor(aqi),
-                                          backgroundColor: Colors.grey,
-                                          strokeWidth: Constants.totalWidth(context) * 0.075,
-                                        ),
+                                        width: Constants.totalWidth(context) * 0.4,
+                                        height:Constants.totalWidth(context) * 0.4,
+                                        child: PyramidChart(aqi: aqi.round()),
                                       ),
                                       SizedBox(
                                         width: Constants.totalWidth(context) * 0.25,

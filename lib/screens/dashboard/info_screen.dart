@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../constants/strings.dart';
+import '../../models/tour_model.dart';
+import '../../providers/groq_tour_provider.dart';
 import '../../ref/instance_provider.dart';
 import '../../ref/values_provider.dart';
 import '../../utils/connection/ssh.dart';
@@ -14,6 +16,7 @@ import '../../widgets/primary_button.dart';
 import '../../widgets/snackbar.dart';
 import '../../widgets/theme_card.dart';
 import '../../widgets/theme_dialog_box.dart';
+import '../tour_viewer.dart';
 
 class InfoScreen extends ConsumerStatefulWidget {
   const InfoScreen({super.key});
@@ -83,11 +86,148 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
             label: 'Take a Tour',
             onTap: (){
               final outerContext = context;
-              //on tapping start
+
+              showDialog(context: outerContext,
+                  builder: (context) {
+                    return Dialog(
+                      // backgroundColor: Colors.transparent,
+                      child: ThemeDialogBox(
+                          child: StatefulBuilder(
+                              builder: (context, setModalState) {
+
+                                return SingleChildScrollView(
+                                  child: isLoading?
+                                  Center(
+                                    child: Column(
+                                      children: [
+                                        CircularProgressIndicator(
+                                          color: Themes.cardText,
+                                          value: value,
+                                        ),
+                                        SizedBox(height: 0.5*Constants.cardMargin(context),),
+                                        Text(loadingText,style: Fonts.medium.copyWith(fontSize: Constants.totalHeight(context)*0.015,color: Themes.cardText),)
+                                      ],
+                                    ),)
+                                      : Column(
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                          children: [
+                                            ConstrainedBox(
+                                              constraints: BoxConstraints(maxWidth: 0.4*Constants.totalWidth(context)),
+                                              child: Text('Do you want a virtual Tour Guide?',
+                                                style: Fonts.bold.copyWith(fontSize: Constants.totalHeight(context)*0.0175,color: Themes.cardText),
+                                                maxLines: 2,),
+                                            ),
+                                            Switch(
+                                              value: light,
+                                              activeColor: Themes.cardText,
+                                              inactiveThumbColor: Themes.cardText,
+                                              inactiveTrackColor: Colors.transparent,
+                                              onChanged: (bool value) {
+                                                setModalState(() {
+                                                  light = value;
+                                                });
+                                              },
+                                            )
+                                          ],
+                                        ),
+                                        SizedBox(height: Constants.cardMargin(context),),
+                                        DropdownButton(
+                                            value: mode,
+                                            dropdownColor: Themes.bg,
+                                            icon: Icon(Icons.arrow_drop_down_outlined,color: Themes.cardText,),
+                                            items: [
+                                              DropdownMenuItem(
+                                                  value: 'Story',
+                                                  child: Text('Story Mode',
+                                                      style: Fonts.semiBold.copyWith(fontSize: Constants.totalWidth(context)*0.05,color: Themes.cardText))
+                                              ),
+                                              DropdownMenuItem(
+                                                  value: 'Educational',
+                                                  child: Text('Education Mode',
+                                                      style: Fonts.semiBold.copyWith(fontSize: Constants.totalWidth(context)*0.05,color: Themes.cardText))
+                                              ),
+                                            ],
+                                            onChanged: (v){
+                                              setModalState(() {
+                                                mode = v!;
+                                              });
+                                            }
+                                        ),
+                                        SizedBox(height: Constants.cardMargin(context),),
+                                        PrimaryButton(
+                                            label: 'START',
+                                            onPressed: () async{
+                                              setModalState(() {
+                                                isLoading = true;
+                                              });
+                                              await Future.delayed(Duration(milliseconds: 500));
+                                              setModalState(() {
+                                                value=0.33;
+                                              });
+
+                                              final GroqTourProvider provider = GroqTourProvider();
+
+                                              final json = await provider.getTour(forest.name, mode,context);
+                                              print(json);
+                                              if(json!=null) {
+                                                try{
+                                                  await Future.delayed(Duration(milliseconds: 500));
+                                                  setModalState(() {
+                                                    loadingText = 'Fetching you the description';
+                                                    value=0.67;
+                                                  });
+                                                  await Future.delayed(Duration(milliseconds: 500));
+                                                  TourModel model = TourModel.fromJson(json);
+                                                  setModalState(() {
+                                                    loadingText = 'Taking you there';
+                                                    value=1;
+                                                  });
+                                                  await Future.delayed(Duration(milliseconds: 500));
+                                                  setModalState(() {
+                                                    isLoading = false;
+                                                  });
+                                                  Navigator.of(context).pop();
+
+                                                  showOverlay(model, forest.name);
+                                                }catch(e){
+                                                  setModalState(() {
+                                                    isLoading = false;
+                                                  });
+                                                  showSnackBar(context, e.toString(), Themes.error);
+                                                  Navigator.of(context).pop();
+                                                }
+                                              }else{
+                                                setModalState(() {
+                                                  isLoading = false;
+                                                });
+                                                Navigator.of(context).pop();
+                                              }
+                                            }
+                                        )
+                                      ]
+                                  ),
+                                );
+                              }
+                          )
+                      ),
+                    );
+                  }
+              );
             },
             icon: CupertinoIcons.airplane
         ),
       ],
     );
+  }
+
+  void showOverlay(TourModel model, String name){
+    entry = OverlayEntry(
+        builder: (context) =>
+            TourViewer(model: model, entry: entry, voiceGuide:light, name: name,)
+    );
+    final overlay = Overlay.of(context);
+    overlay.insert(entry!);
   }
 }

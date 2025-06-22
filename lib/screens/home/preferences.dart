@@ -14,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../ref/instance_provider.dart';
 import '../../utils/connection/ssh.dart';
+import '../../utils/kml/kml_entity.dart';
 import '../qr_code_scanner.dart';
 
 class Preferences extends ConsumerStatefulWidget {
@@ -138,6 +139,8 @@ class _LgConnectionState extends ConsumerState<LgConnection> {
     List<TextEditingController> controllers = [_ipController,_usernameController,_passwordController,_sshPortController,_rigsController];
     List<IconData> icons = [Icons.computer,Icons.person,Icons.lock, Icons.settings_ethernet, Icons.memory, ];
 
+    bool isConnected = ref.watch(sshProvider).isConnected;
+
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -197,13 +200,19 @@ class _LgConnectionState extends ConsumerState<LgConnection> {
                 ),
                 SizedBox(height: Constants.cardMargin(context),),
                 PrimaryButton(
-                    label: 'CONNECT TO LG',
+                    label: !isConnected?'CONNECT TO LG':'DISCONNECT',
                     onPressed: () async {
-                      print('object');
-                      await _saveSettings();
-                      // if(context.mounted) {
-                      await ssh.connectToLG(context);
-                      // }
+                      if(isConnected){
+                        await _saveSettings();
+                        // if(context.mounted) {
+                        await ssh.connectToLG(context);
+                        ssh.sendKmltoSlave(context,
+                            KmlEntity.screenOverlayImage('https://github.com/LiquidGalaxyLAB/Eco-Explorer/blob/main/assets/logos/splash.png?raw=true', 500/554), Constants.leftRig(ssh.rigCount()));
+                        // }
+                      }
+                      else{
+                        await ssh.disconnect(context);
+                      }
                     }
                 ),
               ],
