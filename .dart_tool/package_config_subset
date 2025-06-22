@@ -6,6 +6,10 @@ analyzer
 3.3
 file:///Users/ssdosaofc/.pub-cache/hosted/pub.dev/analyzer-6.11.0/
 file:///Users/ssdosaofc/.pub-cache/hosted/pub.dev/analyzer-6.11.0/lib/
+animated_text_kit
+2.12
+file:///Users/ssdosaofc/.pub-cache/hosted/pub.dev/animated_text_kit-4.2.3/
+file:///Users/ssdosaofc/.pub-cache/hosted/pub.dev/animated_text_kit-4.2.3/lib/
 archive
 3.0
 file:///Users/ssdosaofc/.pub-cache/hosted/pub.dev/archive-4.0.7/
@@ -286,6 +290,10 @@ image
 3.0
 file:///Users/ssdosaofc/.pub-cache/hosted/pub.dev/image-4.5.4/
 file:///Users/ssdosaofc/.pub-cache/hosted/pub.dev/image-4.5.4/lib/
+intl
+3.3
+file:///Users/ssdosaofc/.pub-cache/hosted/pub.dev/intl-0.20.2/
+file:///Users/ssdosaofc/.pub-cache/hosted/pub.dev/intl-0.20.2/lib/
 io
 3.4
 file:///Users/ssdosaofc/.pub-cache/hosted/pub.dev/io-1.0.5/
@@ -522,6 +530,14 @@ stroke_text
 3.0
 file:///Users/ssdosaofc/.pub-cache/hosted/pub.dev/stroke_text-1.0.0/
 file:///Users/ssdosaofc/.pub-cache/hosted/pub.dev/stroke_text-1.0.0/lib/
+syncfusion_flutter_charts
+3.7
+file:///Users/ssdosaofc/.pub-cache/hosted/pub.dev/syncfusion_flutter_charts-29.2.11/
+file:///Users/ssdosaofc/.pub-cache/hosted/pub.dev/syncfusion_flutter_charts-29.2.11/lib/
+syncfusion_flutter_core
+3.7
+file:///Users/ssdosaofc/.pub-cache/hosted/pub.dev/syncfusion_flutter_core-29.2.11/
+file:///Users/ssdosaofc/.pub-cache/hosted/pub.dev/syncfusion_flutter_core-29.2.11/lib/
 synchronized
 3.7
 file:///Users/ssdosaofc/.pub-cache/hosted/pub.dev/synchronized-3.3.1/

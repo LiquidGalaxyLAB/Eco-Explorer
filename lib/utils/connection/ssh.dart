@@ -23,6 +23,11 @@ class Ssh{
   SSHClient? _client;
   bool isConnected = false;
 
+  int rigCount()
+  {
+    return int.parse(_numberOfRigs);
+  }
+
   Future<void> initConnectionDetails() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     _host = prefs.getString('ipAddress') ?? 'default_host';
@@ -63,6 +68,19 @@ class Ssh{
   Future<bool> reconnectToLG(BuildContext context) async {
     await connectToLG(context);
     return isConnected;
+  }
+
+  disconnect(BuildContext context) async{
+    try {
+      if (_client == null) {
+        return;
+      }
+      _client?.close();
+      isConnected = false;
+      showSnackBar(context, 'Disconnected from LG Server', Colors.grey);
+    }catch(e){
+      showSnackBar(context, 'Failed to disconnect', Colors.grey);
+    }
   }
 
   Future<void> setRefresh(BuildContext context) async {
@@ -201,7 +219,7 @@ class Ssh{
     }
   }
 
-  Future<void> sendKmltoSlave(BuildContext context, String fileName, String kmlContent, int slaveNo) async{
+  Future<void> sendKmltoSlave(BuildContext context, String kmlContent, int slaveNo) async{
     try{
       if(_client==null) {
         return;
