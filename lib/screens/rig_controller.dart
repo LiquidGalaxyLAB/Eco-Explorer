@@ -1,11 +1,5 @@
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
 import 'package:eco_explorer/utils/orbit_controller.dart';
->>>>>>> Stashed changes
-=======
 import 'package:eco_explorer/utils/orbit_controller.dart';
->>>>>>> Stashed changes
 import 'package:flutter/material.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,14 +12,8 @@ import '../constants/theme.dart';
 import '../ref/instance_provider.dart';
 import '../ref/values_provider.dart';
 import '../utils/connection/ssh.dart';
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
 import '../utils/orbit_controller.dart';
->>>>>>> Stashed changes
-=======
 import '../utils/orbit_controller.dart';
->>>>>>> Stashed changes
 import '../widgets/controller_button.dart';
 import '../widgets/snackbar.dart';
 
@@ -39,31 +27,17 @@ class RigController extends ConsumerStatefulWidget {
 
 class _RigControllerState extends ConsumerState<RigController> {
   late Ssh ssh;
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
   late Throttling thr;
-=======
-=======
->>>>>>> Stashed changes
   late Throttling thr1;
   late Throttling thr2;
 
   late bool isOrbitPlaying;
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 
   @override
   void initState() {
     super.initState();
     ssh = ref.read(sshProvider);
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
     thr = Throttling<void>(duration: const Duration(milliseconds: 200));
-=======
-=======
->>>>>>> Stashed changes
     Future.microtask((){
       ref.read(isOrbitPlayingProvider.notifier).state = false;
     });
@@ -74,16 +48,10 @@ class _RigControllerState extends ConsumerState<RigController> {
     thr1.close();
     thr2.close();
     super.dispose();
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
   }
 
   @override
   Widget build(BuildContext context) {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
 
     bool isListening = false;
     return Scaffold(
@@ -207,9 +175,6 @@ class _RigControllerState extends ConsumerState<RigController> {
                 )
             )
           ],
-=======
-=======
->>>>>>> Stashed changes
     // final state = ref.watch(mapVoiceProvider);
     // final isListening = state.isListening;
 
@@ -337,17 +302,11 @@ class _RigControllerState extends ConsumerState<RigController> {
               SizedBox(height: Constants.totalHeight(context)*0.05,),
             ],
           ),
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
         ),
       ),
     );
   }
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
 }
 
 
@@ -365,9 +324,6 @@ void showOverlay(BuildContext context){
 
 
 
-=======
-=======
->>>>>>> Stashed changes
   playOrbit(latitude, longitude, altitude) async{
     ref.read(isOrbitPlayingProvider.notifier).state = true;
     await OrbitController().startOrbit(context, ref, ssh, latitude, longitude, altitude);
@@ -397,7 +353,3 @@ void showOverlay(BuildContext context, Ssh ssh){
 }
 
 
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes

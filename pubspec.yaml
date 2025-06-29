@@ -41,13 +41,6 @@ dependencies:
   lottie:
   flutter_neumorphic_plus:
   animated_text_kit:
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  #  rive:
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
   speech_to_text:
   google_maps_flutter:
   google_maps_flutter_android:

@@ -834,21 +834,6 @@
       "rootUri": "file:///Users/ssdosaofc/.pub-cache/hosted/pub.dev/syncfusion_flutter_core-30.1.37",
       "packageUri": "lib/",
       "languageVersion": "3.7"
-<<<<<<< Updated upstream
-    },
-    {
-      "name": "syncfusion_flutter_charts",
-      "rootUri": "file:///Users/ssdosaofc/.pub-cache/hosted/pub.dev/syncfusion_flutter_charts-29.2.11",
-      "packageUri": "lib/",
-      "languageVersion": "3.7"
-    },
-    {
-      "name": "syncfusion_flutter_core",
-      "rootUri": "file:///Users/ssdosaofc/.pub-cache/hosted/pub.dev/syncfusion_flutter_core-29.2.11",
-      "packageUri": "lib/",
-      "languageVersion": "3.7"
-=======
->>>>>>> Stashed changes
     },
     {
       "name": "synchronized",
@@ -1013,15 +998,7 @@
       "languageVersion": "3.7"
     }
   ],
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  "generated": "2025-06-22T18:39:04.014606Z",
-=======
-  "generated": "2025-06-29T21:00:30.657982Z",
->>>>>>> Stashed changes
-=======
-  "generated": "2025-06-29T21:00:30.657982Z",
->>>>>>> Stashed changes
+  "generated": "2025-06-29T21:19:59.931569Z",
   "generator": "pub",
   "generatorVersion": "3.7.0",
   "flutterRoot": "file:///Users/ssdosaofc/flutter",

@@ -71,15 +71,7 @@ class _MapViewState extends ConsumerState<MapView> {
                 initialCameraPosition:
                 CameraPosition(target: LatLng(widget.lat, widget.lon),zoom: 3),
               markers: activeFires,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-              onTap: onTap,
-=======
               // onTap: onTap,
->>>>>>> Stashed changes
-=======
-              // onTap: onTap,
->>>>>>> Stashed changes
             ),
           ),
           if(isLoading)
@@ -88,15 +80,9 @@ class _MapViewState extends ConsumerState<MapView> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
           showOverlay(context);
-=======
           showOverlay(context,ssh);
->>>>>>> Stashed changes
-=======
           showOverlay(context,ssh);
->>>>>>> Stashed changes
         },
         backgroundColor: Colors.white,
         label: Text('Open Controller',style: Fonts.bold.copyWith(color: Colors.black)),
@@ -104,8 +90,6 @@ class _MapViewState extends ConsumerState<MapView> {
       )
     );
   }
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
 
   onTap(LatLng position) async{
     setState(() => isLoading = true);
@@ -134,9 +118,6 @@ class _MapViewState extends ConsumerState<MapView> {
     print('Fire tapped: ${fire.bright_ti5}');
     setState(() => isLoading = false);
     showSnackBar(context, 'Zooming in..', Colors.grey[800]!);
-=======
-=======
->>>>>>> Stashed changes
   //
   // onTap(LatLng position) async{
   //   setState(() => isLoading = true);
@@ -158,9 +139,5 @@ class _MapViewState extends ConsumerState<MapView> {
   // }
 
   void onFireTapped(FireInfo fire) async{
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
   }
 }

@@ -32,14 +32,10 @@ class Ssh extends ChangeNotifier{
   {
     return int.parse(_numberOfRigs);
   }
-<<<<<<< Updated upstream
-
   int rigCount()
   {
     return int.parse(_numberOfRigs);
   }
-=======
->>>>>>> Stashed changes
 
   Future<void> initConnectionDetails() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -89,14 +85,8 @@ class Ssh extends ChangeNotifier{
       }
       _client?.close();
       isConnected = false;
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
       notifyListeners();
->>>>>>> Stashed changes
-=======
       notifyListeners();
->>>>>>> Stashed changes
       showSnackBar(context, 'Disconnected from LG Server', Colors.grey);
     }catch(e){
       showSnackBar(context, 'Failed to disconnect', Colors.grey);
@@ -220,8 +210,6 @@ class Ssh extends ChangeNotifier{
     }
   }
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
   Future<void> sendKml(BuildContext context, String fileName, String kmlContent) async{
     try{
       if(_client==null) {
@@ -305,10 +293,6 @@ class Ssh extends ChangeNotifier{
     }
   }
 
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
   cleanBalloon(context) async {
     try {
       await _client!.run(
