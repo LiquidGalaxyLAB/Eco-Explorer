@@ -31,5 +31,6 @@ StateProvider<int> mapIndexProvider = StateProvider<int>((ref) => 0);
 
 final List<String> labels = ['Satellite', 'Terrain', 'Hybrid'];
 
+StateProvider<bool> isOrbitPlayingProvider = StateProvider<bool>((ref) => false);
 
 

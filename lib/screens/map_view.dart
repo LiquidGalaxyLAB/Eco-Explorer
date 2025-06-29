@@ -71,7 +71,7 @@ class _MapViewState extends ConsumerState<MapView> {
                 initialCameraPosition:
                 CameraPosition(target: LatLng(widget.lat, widget.lon),zoom: 3),
               markers: activeFires,
-              onTap: onTap,
+              // onTap: onTap,
             ),
           ),
           if(isLoading)
@@ -81,6 +81,8 @@ class _MapViewState extends ConsumerState<MapView> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           showOverlay(context);
+          showOverlay(context,ssh);
+          showOverlay(context,ssh);
         },
         backgroundColor: Colors.white,
         label: Text('Open Controller',style: Fonts.bold.copyWith(color: Colors.black)),
@@ -116,5 +118,26 @@ class _MapViewState extends ConsumerState<MapView> {
     print('Fire tapped: ${fire.bright_ti5}');
     setState(() => isLoading = false);
     showSnackBar(context, 'Zooming in..', Colors.grey[800]!);
+  //
+  // onTap(LatLng position) async{
+  //   setState(() => isLoading = true);
+  //
+  //   await Future.delayed(const Duration(milliseconds: 500));
+  //
+  //   const double tolerance = 0.1;
+  //
+  //   for (FireInfo fire in widget.fires) {
+  //     if ((fire.lat - position.latitude).abs() <= tolerance &&
+  //         (fire.lon - position.longitude).abs() <= tolerance) {
+  //       onFireTapped(fire);
+  //       return;
+  //     }
+  //   }
+  //
+  //   setState(() => isLoading = false);
+  //   showSnackBar(context, 'No active fire found at this location', Themes.error);
+  // }
+
+  void onFireTapped(FireInfo fire) async{
   }
 }

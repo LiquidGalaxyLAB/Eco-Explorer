@@ -1,3 +1,6 @@
+import '../../constants/strings.dart';
+import '../../models/fire/fire_model.dart';
+
 class KmlEntity{
   static String getKmlSkeleton(String content, String name)=>'''
   <?xml version="1.0" encoding="UTF-8"?>
@@ -71,5 +74,60 @@ class KmlEntity{
     </kml>
     ''';
 
+  static String getFirePlacemark(int id,double lat, double lon, String style)=>'''
+      <Placemark>
+        <styleUrl>$style</styleUrl>
+        <Point>
+          <coordinates>$lon,$lat,0</coordinates>
+        </Point>
+      </Placemark>
+      ''';
+
+  static String getFireKml(List<FireInfo> fires){
+
+    String firePlacemarks = '';
+    for(int i = 0; i < fires.length; i++){
+
+      final ti4 = fires[i].bright_ti4;
+      final ti5 = fires[i].bright_ti5;
+      final delta = ti4 - ti5;
+
+      String fireStyle =
+      (delta >= 100 || ti4 >= 360) ? '#high' : (delta >= 50 || ti4 >= 330) ? '#med' : '#low';
+
+      firePlacemarks += getFirePlacemark(i, fires[i].lat, fires[i].lon, fireStyle);
+    }
+
+    return getKmlSkeleton('''
+<Style id="low">
+  <IconStyle>
+    <scale>2</scale>
+    <Icon>
+      <href>${Constants.low}</href>
+    </Icon>
+  </IconStyle>
+</Style>
+
+<Style id="med">
+  <IconStyle>
+    <scale>2.5</scale>
+    <Icon>
+      <href>${Constants.med}</href>
+    </Icon>
+  </IconStyle>
+</Style>
+
+<Style id="high">
+  <IconStyle>
+    <scale>3</scale>
+    <Icon>
+      <href>${Constants.high}</href>
+    </Icon>
+  </IconStyle>
+</Style>
+      
+$firePlacemarks
+    ''', 'Recent fires');
+  }
 
 }
