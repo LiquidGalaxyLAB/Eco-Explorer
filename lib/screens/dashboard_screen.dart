@@ -11,13 +11,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hive/hive.dart';
 import 'package:lottie/lottie.dart';
-import 'package:stroke_text/stroke_text.dart';
 import '../constants/strings.dart';
 import '../constants/theme.dart';
 import '../models/forests_model.dart';
 import '../ref/instance_provider.dart';
 import '../ref/values_provider.dart';
 import '../utils/connection/ssh.dart';
+import '../utils/orbit_controller.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -329,34 +329,22 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with TickerPr
   }
 
   playOrbit(lat, lon) async{
-    // ssh.sendBalloon(context, BalloonEntity.orbitBalloon(ref.read(forestProvider.notifier).state!, '', Constants.orbitScale, 0, 0));
-    setState(() {
-      isOrbitPlaying = true;
-    });
-    ssh.flyToOrbit(context, lat, lon, Constants.orbitScale, 0, 0);
-    await Future.delayed(Duration(seconds: 2));
-    for (int i = 0; i <= 360; i += 10) {
-      if (!mounted) {
-        return;
-      }
-      if (!isOrbitPlaying) {
-        break;
-      }
-      ssh.flyToOrbit(context, lat, lon, Constants.orbitScale, 60, i.toDouble());
-      await Future.delayed(const Duration(milliseconds: 1000));
+    if(ssh.isConnected == false){
+      showSnackBar(context, 'Not connected to the rig', Themes.error);
+      return;
     }
+
+    await ssh.sendKmltoSlave(context, BalloonEntity.orbitBalloon(ref.read(forestProvider.notifier).state!, Constants.forestImage(forest.path), Constants.orbitScale, 0, 0), Constants.rightRig(ssh.rigCount()));
+    ref.read(isOrbitPlayingProvider.notifier).state = true;
+    await OrbitController().startOrbit(context, ref, ssh, lat, lon, Constants.orbitAltitude);
     if (!mounted) {
       return;
     }
-    setState(() {
-      isOrbitPlaying = false;
-    });
+    await stopOrbit(lat, lon);
   }
 
   stopOrbit(lat, lon) async{
-    setState(() {
-      isOrbitPlaying = false;
-    });
-    ssh.flyToOrbit(context, lat, lon, Constants.orbitScale, 0, 0);
+    ref.read(isOrbitPlayingProvider.notifier).state = false;
+    await OrbitController().stopOrbit(context, ssh, lat, lon,Constants.forestAltitude);
   }
 }

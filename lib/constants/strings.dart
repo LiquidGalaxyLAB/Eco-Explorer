@@ -33,6 +33,12 @@ class Constants{
   static const double orbitScale = 13;
   static const double defaultScale = 2;
 
+  static const double forestAltitude = 4000000;
+  static const double biodivAltitude = 200;
+  static const double zoomedFireAltitude = 100000;
+  static const double orbitAltitude = 500000;
+  static const double tourAltitude = 5000;
+
   static cardRadius(context) => MediaQuery.of(context).size.height*0.025;
   static buttonRadius(context) => MediaQuery.of(context).size.height*0.015;
   static totalWidth(context) => MediaQuery.of(context).size.width;
@@ -45,12 +51,16 @@ class Constants{
   static bottomGap(context) => MediaQuery.of(context).size.height*0.12;
 
   //github links
-  static const low = '';
-  static const med = '';
-  static const high = '';
-  static const fireIcon = '';
-  static const concFile = 'conc';
-  static const dataFile = 'data';
+  static const page = 'https://raw.githubusercontent.com/Ssdosaofc/Assets-Repo/refs/heads/main/eco-explorer';
+  static const overlay = '$page/overlay.png';
+  static const low = '$page/low.png';
+  static const med = '$page/mid.png';
+  static const high = '$page/high.png';
+  static const fireIcon = '$page/fireIcon.png';
+  static const fireImage = '$page/fireImage.jpg';
+  static const lossImage = '$page/lossImage.jpg';
+  static String forestImage(String path) => '$page/forest/$path.png';
+  static String speciesImage(String path, String species) => '$page/biodiv/$path/$species.png';
 
   static const aqiDb = 'AQI';
   static const histAqiDb = 'HIST_AQI';
