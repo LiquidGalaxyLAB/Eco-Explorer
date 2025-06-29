@@ -21,8 +21,12 @@ import '../../ref/instance_provider.dart';
 import '../../states/api_state.dart';
 import '../../utils/connection/ssh.dart';
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 import '../../widgets/timelapse.dart';
 import '../map_view.dart';
+=======
+import '../../widgets/error_dialog_box.dart';
+>>>>>>> Stashed changes
 =======
 import '../../widgets/error_dialog_box.dart';
 >>>>>>> Stashed changes
@@ -171,6 +175,7 @@ class _CataScreenState extends ConsumerState<CataScreen> {
         ThemeCard(
             onTap: (){
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
               showDialog(
                   context: context,
                   builder: (context) {
@@ -189,6 +194,8 @@ class _CataScreenState extends ConsumerState<CataScreen> {
                   }
               );
 =======
+=======
+>>>>>>> Stashed changes
               final outerContext = context;
               showDialog(
                 context: outerContext,
@@ -317,6 +324,9 @@ class _CataScreenState extends ConsumerState<CataScreen> {
                   });
                 }
               });
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
             },
             width: Constants.totalWidth(context),
