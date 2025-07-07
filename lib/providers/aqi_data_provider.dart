@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/strings.dart';
 import '../ref/api_provider.dart';
@@ -16,15 +17,22 @@ class AqiDataProvider implements IAqiDataProvider {
   Future<Response> getPollutionData(WidgetRef ref, double lat, double lon) async{
     final Dio dio = ref.read(dioProvider);
 
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final openWeatherApiKey = prefs.getString('openWeatherApiKey');
+
+    print(openWeatherApiKey);
+    if(openWeatherApiKey == null) throw 'Invalid API Key';
+
     try{
-      String url = 'http://api.openweathermap.org/data/2.5/air_pollution?lat=$lat&lon=$lon&appid=${Constants.openWeatherApiKey}';
+      String url = 'http://api.openweathermap.org/data/2.5/air_pollution?lat=$lat&lon=$lon&appid=$openWeatherApiKey';
+      print(url);
 
       final res = await dio.get(url,
-      //     queryParameters: {
-      //   'lat': lat.toString(),
-      //   'lon': lon.toString(),
-      //   'appid': apiKey,
-      // }
+        //     queryParameters: {
+        //   'lat': lat.toString(),
+        //   'lon': lon.toString(),
+        //   'appid': apiKey,
+        // }
       );
 
       // print(res.data);
@@ -41,6 +49,11 @@ class HistAqiDataProvider implements IAqiDataProvider {
   Future<Response> getPollutionData(WidgetRef ref, double lat, double lon) async{
     final Dio dio = ref.read(dioProvider);
 
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final openWeatherApiKey = prefs.getString('openWeatherApiKey');
+
+    if(openWeatherApiKey == null) throw 'Invalid API Key';
+
     int getUnixTimestamp(DateTime date) => date.millisecondsSinceEpoch ~/ 1000;
 
     final DateTime now = DateTime.now();
@@ -51,16 +64,16 @@ class HistAqiDataProvider implements IAqiDataProvider {
 
 
     try{
-      String url = 'http://api.openweathermap.org/data/2.5/air_pollution/history?lat=$lat&lon=$lon&start=$start&end=$end&appid=${Constants.openWeatherApiKey}';
+      String url = 'http://api.openweathermap.org/data/2.5/air_pollution/history?lat=$lat&lon=$lon&start=$start&end=$end&appid=$openWeatherApiKey';
 
       final res = await dio.get(url,
-      //     queryParameters: {
-      //   'lat': lat.toString(),
-      //   'lon': lon.toString(),
-      //   'start': start.toString(),
-      //   'end': end.toString(),
-      //   'appid': apiKey
-      // }
+        //     queryParameters: {
+        //   'lat': lat.toString(),
+        //   'lon': lon.toString(),
+        //   'start': start.toString(),
+        //   'end': end.toString(),
+        //   'appid': apiKey
+        // }
       );
       return res;
     }catch (e, stackTrace) {

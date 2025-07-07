@@ -3,7 +3,6 @@ import 'package:eco_explorer/constants/strings.dart';
 import 'package:eco_explorer/constants/theme.dart';
 import 'package:eco_explorer/screens/help_screen.dart';
 import 'package:eco_explorer/widgets/connection_bar.dart';
-import 'package:eco_explorer/widgets/custom_page_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lottie/lottie.dart';
@@ -40,6 +39,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStat
 
   Future<void> _connectToLG() async {
     await ssh.connectToLG(context);
+
+    if(ssh.isConnected){
+      await ssh.cleanBalloon(context);
+      await ssh.clearKml(context);
+    }
   }
 
   @override
@@ -61,10 +65,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStat
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.push(context, CustomPageRoute(child: HelpScreen()));
+              Navigator.push(context, MaterialPageRoute(builder: (_)=>HelpScreen()));
             },
             icon: const Icon(Icons.help_outline),
-            color: Themes.logoInactive,
+            color: Colors.white,
             focusColor: Themes.logoActive,
           )
         ],
@@ -73,7 +77,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStat
         padding: EdgeInsets.only(left: Constants.cardPadding(context),right: Constants.cardPadding(context),bottom: Constants.cardPadding(context)),
         child: Column(
           children: [
-            ConnectionBar(connectionStatus: ssh.isConnected),
+            ConnectionBar(ref: ref,),
             SizedBox(height: Constants.cardPadding(context)),
             Expanded(
               child: pages[index],
@@ -113,6 +117,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStat
               repeat: false
           ),
         ),
+        // child: RiveAnimation.asset(
+        //     fit: BoxFit.contain,
+        //   'assets/voice/mic.riv',
+        //   artboard: 'frame_01',
+        //   stateMachines: ['sm_01'],
+        //     onInit: (artboard) {
+        //       StateMachineController? controller=
+        //       StateMachineController.fromArtboard(artboard,'sm_01');
+        //
+        //       artboard.addController(controller!);
+        //
+        //       _controller = controller;
+        //
+        //       startRecord = _controller.findSMI<SMITrigger>('start record');
+        //       startProcess = _controller.findSMI<SMITrigger>('start process');
+        //       endRecord = _controller.findSMI<SMITrigger>('end record');
+        //     }
+        // ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       extendBody: true,

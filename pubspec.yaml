@@ -65,6 +65,8 @@ dependencies:
   flutter_joystick:
   throttling:
   url_launcher:
+  flutter_downloader:
+  flutter_archive:
 
 dev_dependencies:
   flutter_test:

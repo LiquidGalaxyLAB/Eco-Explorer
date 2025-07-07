@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:eco_explorer/constants/fonts.dart';
 import 'package:eco_explorer/constants/strings.dart';
@@ -8,8 +9,11 @@ import 'package:eco_explorer/widgets/primary_button.dart';
 import 'package:eco_explorer/widgets/snackbar.dart';
 import 'package:eco_explorer/widgets/text_box.dart';
 import 'package:eco_explorer/widgets/theme_card.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../ref/instance_provider.dart';
@@ -28,12 +32,15 @@ class _PreferencesState extends ConsumerState<Preferences> with TickerProviderSt
 
   late TabController _tabController;
 
+  BuildContext? innerContext;
+
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-  }
 
+  }
 
   @override
   void dispose() {
@@ -46,6 +53,52 @@ class _PreferencesState extends ConsumerState<Preferences> with TickerProviderSt
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            GestureDetector(
+                onTap: () async{
+
+                },
+                child: Container(
+                  // width: double.maxFinite,
+                  padding: EdgeInsets.symmetric(horizontal: Constants.cardPadding(context), vertical: Constants.cardPadding(context)*0.5),
+                  decoration: BoxDecoration(
+                    color: Themes.secondaryButtonFill,
+                    borderRadius: BorderRadius.all(Radius.circular(Constants.buttonRadius(context))),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('Download 3D Data', style: Fonts.semiBold.copyWith(color: Themes.secondaryButtonBg, fontSize: Constants.totalHeight(context)*0.015),),
+                      SizedBox(width: Constants.totalWidth(context)*0.02,),
+                      Icon(Icons.download,color: Themes.secondaryButtonBg,size: Constants.totalHeight(context)*0.02,)
+                    ],
+                  ),
+                )
+            ),
+            GestureDetector(
+                onTap: (){},
+                child: Container(
+                  // width: double.maxFinite,
+                  padding: EdgeInsets.symmetric(horizontal: Constants.cardPadding(context), vertical: Constants.cardPadding(context)*0.5),
+                  decoration: BoxDecoration(
+                    color: Themes.error,
+                    borderRadius: BorderRadius.all(Radius.circular(Constants.buttonRadius(context))),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('Delete 3D Data', style: Fonts.semiBold.copyWith(color: Colors.white, fontSize: Constants.totalHeight(context)*0.015),),
+                      SizedBox(width: Constants.totalWidth(context)*0.02,),
+                      Icon(Icons.delete_forever,color: Colors.white,size: Constants.totalHeight(context)*0.02,)
+                    ],
+                  ),
+                )
+            ),
+          ],
+        ),
+        SizedBox(height: Constants.cardMargin(context),),
         TabBar(
             controller: _tabController,
             labelStyle: Fonts.bold.copyWith(fontSize: Constants.totalWidth(context) * 0.04,color: Themes.cardText),
@@ -139,8 +192,6 @@ class _LgConnectionState extends ConsumerState<LgConnection> {
     List<TextEditingController> controllers = [_ipController,_usernameController,_passwordController,_sshPortController,_rigsController];
     List<IconData> icons = [Icons.computer,Icons.person,Icons.lock, Icons.settings_ethernet, Icons.memory, ];
 
-    bool isConnected = ref.watch(sshProvider).isConnected;
-
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -200,17 +251,13 @@ class _LgConnectionState extends ConsumerState<LgConnection> {
                 ),
                 SizedBox(height: Constants.cardMargin(context),),
                 PrimaryButton(
-                    label: !isConnected?'CONNECT TO LG':'DISCONNECT',
+                    label: !(ref.watch(sshProvider).connected)?'CONNECT TO LG':'DISCONNECT',
                     onPressed: () async {
-                      if(isConnected){
+
+                      if (!ref.watch(sshProvider).connected) {
                         await _saveSettings();
-                        // if(context.mounted) {
-                        await ssh.connectToLG(context);
-                        ssh.sendKmltoSlave(context,
-                            KmlEntity.screenOverlayImage('https://github.com/LiquidGalaxyLAB/Eco-Explorer/blob/main/assets/logos/splash.png?raw=true', 500/554), Constants.leftRig(ssh.rigCount()));
-                        // }
-                      }
-                      else{
+                        await connect();
+                      } else {
                         await ssh.disconnect(context);
                       }
                     }
@@ -227,6 +274,7 @@ class _LgConnectionState extends ConsumerState<LgConnection> {
   Future<void> qrCodeScanned() async {
     try {
       final result = await Navigator.push(context, MaterialPageRoute(builder: (context)=>QrCodeScanner()));
+      print(result);
 
       if (result is Map) {
         final json = result['result'];
@@ -249,18 +297,28 @@ class _LgConnectionState extends ConsumerState<LgConnection> {
         print(jsonDecoded['screens'].toString());
 
         setState(() {
-          _ipController.text = jsonDecoded['ip'].toString();
-          _usernameController.text = jsonDecoded['username'].toString();
-          _passwordController.text = jsonDecoded['password'].toString();
-          _sshPortController.text = jsonDecoded['port'].toString();
-          _rigsController.text = jsonDecoded['screens'].toString();
+          _ipController.text = jsonDecoded['ip']!.toString();
+          _usernameController.text = jsonDecoded['username']!.toString();
+          _passwordController.text = jsonDecoded['password']!.toString();
+          _sshPortController.text = jsonDecoded['port']!.toString();
+          _rigsController.text = jsonDecoded['screens']!.toString();
         });
 
         await _saveSettings();
-        await ssh.connectToLG(context);
+        await connect();
+
       }
     }catch (e) {
       showSnackBar(context, e.toString(), Themes.error);
+    }
+  }
+
+  connect() async{
+    await ssh.connectToLG(context);
+    if(ref.read(sshProvider).connected){
+      await ssh.cleanBalloon(context);
+      await ssh.sendKmltoSlave(context,
+          KmlEntity.screenOverlayImage(Constants.overlay, 500/554), Constants.leftRig(ssh.rigCount()));
     }
   }
 }
@@ -287,15 +345,15 @@ class _LgCommandsState extends ConsumerState<LgCommands> {
     List<String> commands = ['Set Slaves Refresh','Reset Slaves Refresh','Relaunch','Reboot','Clear KML + Logos','Power Off'];
     List<IconData> icons = [Icons.timer_outlined,Icons.timer_off_outlined,Icons.login_outlined,Icons.refresh,Icons.cleaning_services_sharp,Icons.power_settings_new];
     List<Future<void> Function()> functions = [
-          () => ssh.setRefresh(context),
-          () => ssh.resetRefresh(context),
-          () => ssh.relaunchLG(context),
-          () => ssh.rebootLG(context),
-          () {
-        ssh.cleanBalloon(context);
-        return ssh.clearKml(context);
+          () async => await ssh.setRefresh(context),
+          () async => await ssh.resetRefresh(context),
+          () async => await ssh.relaunchLG(context),
+          () async => await ssh.rebootLG(context),
+          () async {
+        await ssh.cleanBalloon(context);
+        await ssh.clearKml(context);
       },
-          () => ssh.powerOff(context),
+          () async => await ssh.powerOff(context)
     ];
     return SingleChildScrollView(
       child: Column(
@@ -338,3 +396,4 @@ class _LgCommandsState extends ConsumerState<LgCommands> {
     );
   }
 }
+

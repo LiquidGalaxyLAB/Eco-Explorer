@@ -36,7 +36,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with TickerPr
   late Ssh ssh;
   late Forest forest;
 
-  bool isOrbitPlaying = false;
+  late bool isOrbitPlaying;
   bool connectionStatus = false;
 
   // GoogleMapController? mapController;
@@ -46,6 +46,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with TickerPr
     super.initState();
     ssh = ref.read(sshProvider);
     forest = ref.read(forestProvider.notifier).state!;
+    Future.microtask((){
+      ref.read(isOrbitPlayingProvider.notifier).state = false;
+    });
   }
 
   @override
@@ -58,12 +61,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with TickerPr
     final mapIndex = ref.watch(mapIndexProvider);
     final selectedMapType = maps[mapIndex];
 
+    isOrbitPlaying = ref.watch(isOrbitPlayingProvider);
+
     Color textColour = (mapIndex!=1)?Colors.white:Colors.black;
 
     return PopScope(
       onPopInvoked: (didPop) {
         ref.read(dashboardIndexProvider.notifier).state = 0;
         ref.read(mapIndexProvider.notifier).state = 0;
+        ref.read(isOrbitPlayingProvider.notifier).state = false;
       },
       child: SafeArea(
         child: Scaffold(
@@ -127,7 +133,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with TickerPr
                         children: [
                           SizedBox(width: Constants.totalWidth(context)*0.01,),
                           SizedBox(
-                            width: Constants.totalWidth(context)*0.5,
+                            width: Constants.totalWidth(context)*0.45,
                             child: Text(
                               forest.name,
                               style: Fonts.bold.copyWith(
@@ -139,12 +145,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with TickerPr
                           ),
                           // SizedBox(width: Constants.totalWidth(context)*0.1,),
                           TextButton(
-                            onPressed: (){
+                            onPressed: () async {
                               if(ssh.isConnected == false){
                                 showSnackBar(context, 'Not connected to the rig', Themes.error);
                                 return;
                               }
-                              isOrbitPlaying?stopOrbit(lat, lon): playOrbit(lat, lon);
+                              isOrbitPlaying?await stopOrbit(lat, lon): await playOrbit(lat, lon);
                             },
                             child: Tooltip(
                               message: isOrbitPlaying?'Stop Orbit':'Play Orbit',
@@ -159,14 +165,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with TickerPr
                                       )]
                                 ),
                                 child: CircleAvatar(
-                                  radius: Constants.totalWidth(context)*0.035,
-                                  backgroundColor: Colors.white,
-                                  child: isOrbitPlaying?
-                                  Center(child: Icon(Icons.stop,color: Colors.black,))
-                                      :Padding(
-                                    padding: EdgeInsets.all(Constants.totalWidth(context)*0.015),
-                                    child: ImageIcon(AssetImage('assets/logos/orbit.png'),color: Colors.black,),
-                                  ),
+                                    radius: Constants.totalWidth(context)*0.035,
+                                    backgroundColor: Colors.white,
+                                    child: Center(child: Icon(isOrbitPlaying?Icons.stop:Icons.play_arrow,
+                                      color: Colors.black,size: Constants.totalWidth(context)*0.05,),
+                                    )
                                 ),
                               ),
                             ),
@@ -219,7 +222,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with TickerPr
                         Padding(padding: EdgeInsets.symmetric(horizontal: Constants.cardPadding(context)),
                           child: Column(
                             children: [
-                              ConnectionBar(connectionStatus: ssh.isConnected),
+                              ConnectionBar(ref: ref,),
                               SizedBox(height: 0.5*Constants.cardMargin(context),),
                               Row(
                                 children: [
@@ -242,7 +245,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with TickerPr
               shape: CircleBorder(),
               backgroundColor: Colors.transparent,
               onPressed: () {
-
               },
               // child: Image.asset(
               //   'assets/voice/voice.png',

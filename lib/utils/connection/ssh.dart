@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -28,10 +29,6 @@ class Ssh extends ChangeNotifier{
 
   static const String lgUrl = 'http://lg1:81';
 
-  int rigCount()
-  {
-    return int.parse(_numberOfRigs);
-  }
   int rigCount()
   {
     return int.parse(_numberOfRigs);
@@ -85,7 +82,6 @@ class Ssh extends ChangeNotifier{
       }
       _client?.close();
       isConnected = false;
-      notifyListeners();
       notifyListeners();
       showSnackBar(context, 'Disconnected from LG Server', Colors.grey);
     }catch(e){
@@ -207,89 +203,6 @@ class Ssh extends ChangeNotifier{
     }catch(e){
       await reconnectToLG(context);
       clearKml(context);
-    }
-  }
-
-  Future<void> sendKml(BuildContext context, String fileName, String kmlContent) async{
-    try{
-      if(_client==null) {
-        return;
-      }
-      final sftp = await _client!.sftp();
-      final file = await sftp.open('${Constants.remoteFile}/$fileName.kml',
-          mode: SftpFileOpenMode.create |
-          SftpFileOpenMode.truncate |
-          SftpFileOpenMode.write);
-
-      var bytes = utf8.encode(kmlContent);
-      file.writeBytes(bytes);
-
-      await _client!.execute('echo "${Constants.lgUrl}/$fileName.kml" > /var/www/html/kmls.txt');
-    }catch(e){
-      showSnackBar(context, e.toString(), Themes.error);
-    }
-  }
-
-  Future<void> sendKmltoSlave(BuildContext context, String kmlContent, int slaveNo) async{
-    try{
-      if(_client==null) {
-        return;
-      }
-
-      await _client!.execute("echo 'kmlContent' > /var/www/html/kml/slave_$slaveNo.kml");
-    }catch(e){
-      showSnackBar(context, e.toString(), Themes.error);
-    }
-  }
-
-  Future<void> startOrbit(BuildContext context) async {
-    try {
-      if(_client==null) {
-        return;
-      }
-      await _client!.run('echo "playtour=Orbit" > /tmp/query.txt');
-    } catch (e) {
-      showSnackBar(context, e.toString(), Themes.error);
-    }
-  }
-
-  Future<void> stopOrbit(BuildContext context) async{
-    try {
-      await _client!.run('echo "exittour=true" > /tmp/query.txt');
-    } catch (error) {
-      await reconnectToLG(context);
-      stopOrbit(context);
-    }
-  }
-
-  Future<bool> flyToOrbit(BuildContext context, double latitude, double longitude,
-      double zoom, double tilt, double heading) async {
-    try {
-      if(_client==null)
-      {
-        await reconnectToLG(context);
-        if(isConnected==false) {
-          return false;
-        }
-      }
-      String lookAt = LookAtEntity(latitude, longitude, zoom, tilt, heading).orbitLinearLookAt();
-      await _client!.run(
-          'echo "flytoview=$lookAt" > /tmp/query.txt');
-      return true;
-    } catch (e) {
-      showSnackBar(context, e.toString(), Themes.error);
-      return false;
-    }
-  }
-
-  Future<void> flyToWithoutSaving(BuildContext context, double latitude, double longitude,
-      double zoom, double tilt, double heading) async {
-    try {
-      String lookAt = LookAtEntity(latitude, longitude, zoom, tilt, heading).linearLookAt();
-      await _client!.run(
-          'echo "flytoview=$lookAt" > /tmp/query.txt');
-    } catch (e) {
-      showSnackBar(context, e.toString(), Themes.error);
     }
   }
 

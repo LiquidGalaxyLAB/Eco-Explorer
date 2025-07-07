@@ -12,14 +12,17 @@ class SplashScreen extends StatefulWidget {
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
-
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin{
-
+class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-    Future.delayed(Duration(seconds: 5), () => Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen())));
+    Future.delayed(const Duration(seconds: 5), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+    });
   }
 
   @override
@@ -27,88 +30,102 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child:  Column(
+      backgroundColor: Colors.white,
+      body: Padding(
+        padding: EdgeInsets.all(Constants.cardPadding(context)),
+        child: Center(
+          child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(
-                width: Constants.totalWidth(context)*0.6,
-                child: Image.asset('assets/logos/logo.png'),
+                width: Constants.totalWidth(context) * 0.6,
+                child: Image.asset(Constants.logo),
               ),
-              SizedBox(height:Constants.totalHeight(context)*0.03),
+              SizedBox(height: Constants.totalHeight(context) * 0.03),
               SizedBox(
-                  width: Constants.totalWidth(context)*0.7,
-                  child: AnimatedTextKit(
-                      isRepeatingAnimation: false,
-                      animatedTexts: [
-                        TyperAnimatedText(
-                          Constants.title, textStyle: Fonts.bold.copyWith(color: Colors.black,
-                            fontSize: Constants.totalHeight(context)*0.03),textAlign: TextAlign.center,
-                          speed: Duration(milliseconds: 50),
-                        ),
-
-                      ]
-                  )
+                width: Constants.totalWidth(context) * 0.7,
+                child: AnimatedTextKit(
+                  isRepeatingAnimation: false,
+                  animatedTexts: [
+                    TyperAnimatedText(
+                      Constants.title,
+                      textStyle: Fonts.bold.copyWith(
+                        color: Colors.black,
+                        fontSize: Constants.totalHeight(context) * 0.03,
+                      ),
+                      textAlign: TextAlign.center,
+                      speed: const Duration(milliseconds: 50),
+                    ),
+                  ],
+                ),
               ),
-              SizedBox(height:Constants.totalHeight(context)*0.05),
+              SizedBox(height: Constants.totalHeight(context) * 0.05),
               SizedBox(
-                height: Constants.totalHeight(context)*0.075,
+                height: Constants.totalHeight(context) * 0.075,
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Image.asset('assets/logos/lg.png'),
-                    Image.asset('assets/logos/gsoc.png'),
+                    Image.asset(Constants.lgLogo),
+                    Image.asset(Constants.gsocLogo),
                   ],
                 ),
               ),
-              SizedBox(height:Constants.totalHeight(context)*0.05),
+              SizedBox(height: Constants.totalHeight(context) * 0.05),
               SizedBox(
-                height: Constants.totalHeight(context)*0.0325,
+                height: Constants.totalHeight(context) * 0.0325,
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Padding(
-                      padding: EdgeInsets.symmetric(vertical: Constants.totalHeight(context)*0.005),
-                      child: Image.asset('assets/logos/LogoLGEU.png'),
+                      padding: EdgeInsets.symmetric(
+                        vertical: Constants.totalHeight(context) * 0.005,
+                      ),
+                      child: Image.asset(Constants.logoLGEU),
                     ),
-                    Image.asset('assets/logos/lab.png'),
-                    Image.asset('assets/logos/gdg.png'),
-                    Image.asset('assets/logos/flutter_lleida.png'),
-                    Image.asset('assets/logos/tic.png'),
-                    Image.asset('assets/logos/pcital.png'),
+                    Image.asset(Constants.labLogo),
+                    Image.asset(Constants.gdgLogo),
+                    Image.asset(Constants.flutterLleidaLogo),
+                    Image.asset(Constants.ticLogo),
+                    Image.asset(Constants.pcitalLogo),
                   ],
                 ),
               ),
-              SizedBox(height:Constants.totalHeight(context)*0.05),
+              SizedBox(height: Constants.totalHeight(context) * 0.05),
               SizedBox(
-                height: Constants.totalHeight(context)*0.0375,
+                height: Constants.totalHeight(context) * 0.0375,
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Image.asset('assets/logos/buildwithai.png'),
+                    Image.asset(Constants.buildWithAILogo),
                     Padding(
-                      padding: EdgeInsets.symmetric(vertical: Constants.totalHeight(context)*0.005),
-                      child: Image.asset('assets/logos/groq.png'),
+                      padding: EdgeInsets.symmetric(
+                        vertical: Constants.totalHeight(context) * 0.005,
+                      ),
+                      child: Image.asset(Constants.groqLogo),
                     ),
-                    Image.asset('assets/logos/LiquidGalaxyAI.png'),
-                    Image.asset('assets/logos/iit.png'),
-                    Image.asset('assets/logos/android.png'),
+                    Image.asset(Constants.liquidGalaxyAILogo),
+                    Image.asset(Constants.iitLogo),
+                    Image.asset(Constants.androidLogo),
                     Padding(
-                      padding: EdgeInsets.symmetric(vertical: Constants.totalHeight(context)*0.005),
-                      child: Image.asset('assets/logos/flutter.png'),
+                      padding: EdgeInsets.symmetric(
+                        vertical: Constants.totalHeight(context) * 0.005,
+                      ),
+                      child: Image.asset(Constants.flutterLogo),
                     ),
                   ],
                 ),
               ),
-            ]
+            ],
+          ),
         ),
-      )
+      ),
     );
   }
 }

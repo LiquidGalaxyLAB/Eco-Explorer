@@ -1,5 +1,4 @@
 import 'package:eco_explorer/screens/dashboard_screen.dart';
-import 'package:eco_explorer/widgets/custom_page_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,7 +28,7 @@ class _ForestElementState extends ConsumerState<ForestElement> {
     return GestureDetector(
         onTap: () {
           ref.read(forestProvider.notifier).state = forest;
-          Navigator.push(context, CustomPageRoute(child: DashboardScreen()));
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>DashboardScreen()));
         },
         child: Stack(
           alignment: Alignment.topRight,

@@ -41,8 +41,8 @@ class _MapViewState extends ConsumerState<MapView> {
       FireInfo fire = widget.fires[i];
       activeFires.add(
           Marker(
-              markerId: MarkerId('$i'),
-              position: LatLng(fire.lat, fire.lon),
+            markerId: MarkerId('$i'),
+            position: LatLng(fire.lat, fire.lon),
             onTap: ()=> onFireTapped(fire),
           )
       );
@@ -52,73 +52,43 @@ class _MapViewState extends ConsumerState<MapView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        leading: IconButton(
-          onPressed: () { Navigator.pop(context); },
-          icon: Icon(Icons.arrow_back,color: Colors.white,),
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          leading: IconButton(
+            onPressed: () { Navigator.pop(context); },
+            icon: Icon(Icons.arrow_back,color: Colors.white,),
+          ),
         ),
-      ),
-      body: Stack(
-        alignment: Alignment.center,
-        children: [
-          SizedBox(
-            height: Constants.totalHeight(context),
-            width: Constants.totalWidth(context),
-            child: GoogleMap(
-              mapType: MapType.satellite,
+        body: Stack(
+          alignment: Alignment.center,
+          children: [
+            SizedBox(
+              height: Constants.totalHeight(context),
+              width: Constants.totalWidth(context),
+              child: GoogleMap(
+                mapType: MapType.satellite,
                 initialCameraPosition:
                 CameraPosition(target: LatLng(widget.lat, widget.lon),zoom: 3),
-              markers: activeFires,
-              // onTap: onTap,
+                markers: activeFires,
+                // onTap: onTap,
+              ),
             ),
-          ),
-          if(isLoading)
-          Loading()
-        ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          showOverlay(context);
-          showOverlay(context,ssh);
-          showOverlay(context,ssh);
-        },
-        backgroundColor: Colors.white,
-        label: Text('Open Controller',style: Fonts.bold.copyWith(color: Colors.black)),
-        icon: Icon(Icons.control_camera,color: Colors.black,),
-      )
+            if(isLoading)
+              Loading()
+          ],
+        ),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () {
+            showOverlay(context,ssh);
+          },
+          backgroundColor: Colors.white,
+          label: Text('Open Controller',style: Fonts.bold.copyWith(color: Colors.black)),
+          icon: Icon(Icons.control_camera,color: Colors.black,),
+        )
     );
   }
 
-  onTap(LatLng position) async{
-    setState(() => isLoading = true);
-
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    const double tolerance = 0.1;
-
-    for (FireInfo fire in widget.fires) {
-      if ((fire.lat - position.latitude).abs() <= tolerance &&
-          (fire.lon - position.longitude).abs() <= tolerance) {
-        onFireTapped(fire);
-        return;
-      }
-    }
-
-    setState(() => isLoading = false);
-    showSnackBar(context, 'No active fire found at this location', Themes.error);
-  }
-
-  void onFireTapped(FireInfo fire) async{
-    String filename = '${fire.lat}_${fire.lon}_Fire.kml';
-    setState(() => isLoading = true);
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    print('Fire tapped: ${fire.bright_ti5}');
-    setState(() => isLoading = false);
-    showSnackBar(context, 'Zooming in..', Colors.grey[800]!);
-  //
   // onTap(LatLng position) async{
   //   setState(() => isLoading = true);
   //
@@ -139,5 +109,22 @@ class _MapViewState extends ConsumerState<MapView> {
   // }
 
   void onFireTapped(FireInfo fire) async{
+    if(!ssh.isConnected) return;
+    String filename = '${fire.lat}_${fire.lon}_Fire.kml';
+    setState(() => isLoading = true);
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    print(KmlEntity.getZoomedFireKml(fire));
+
+    File? file = await ssh.makeFile(filename, KmlEntity.getZoomedFireKml(fire));
+    await ssh.kmlFileUpload(file!,filename);
+    await ssh.sendKml(context, filename);
+    await ssh.flyToWithoutSaving(context, ref, fire.lat, fire.lon, Constants.zoomedFireAltitude, Constants.defaultScale, 0, 0);
+    await ssh.sendKmltoSlave(context, BalloonEntity.zoomedFireBalloon(fire, Constants.defaultScale, 0, 0), Constants.rightRig(ssh.rigCount()));
+
+    print('Fire tapped: ${fire.bright_ti5}');
+    setState(() => isLoading = false);
+    showSnackBar(context, 'Zooming in..', Colors.grey[800]!);
   }
 }
+
