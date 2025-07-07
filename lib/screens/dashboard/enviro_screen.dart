@@ -333,50 +333,6 @@ class _EnviroScreenState extends ConsumerState<EnviroScreen> {
                                 ],
                               ),
                               SizedBox(height: Constants.cardMargin(context),),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Container(
-                                        height: Constants.totalHeight(context) * 0.015,
-                                        width: Constants.totalHeight(context) * 0.015,
-                                        decoration: BoxDecoration(
-                                          color: Themes.graph,
-                                        ),
-                                      ),
-                                      SizedBox(width: Constants.totalWidth(context) * 0.025),
-                                      Text(
-                                          'Normal Curve',
-                                          style: Fonts.regular.copyWith(
-                                            fontSize: Constants.totalWidth(context) * 0.025,
-                                            color: Themes.cardText,
-                                          )
-                                      )
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Container(
-                                        height: Constants.totalHeight(context) * 0.015,
-                                        width: Constants.totalHeight(context) * 0.015,
-                                        decoration: BoxDecoration(
-                                          color: Themes.smoothGraph,
-                                        ),
-                                      ),
-                                      SizedBox(width: Constants.totalWidth(context) * 0.025),
-                                      Text(
-                                          'Smoothened Curve',
-                                          style: Fonts.regular.copyWith(
-                                            fontSize: Constants.totalWidth(context) * 0.025,
-                                            color: Themes.cardText,
-                                          )
-                                      )
-                                    ],
-                                  )
-                                ],
-                              ),
-                              SizedBox(height: Constants.cardMargin(context),),
                               ConstrainedBox(
                                   constraints: BoxConstraints(maxHeight: Constants.totalHeight(context)),
                                   child: AqiLineChart(aqis: aqis)

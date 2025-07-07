@@ -12,7 +12,7 @@ class Constants{
   static const String fire = 'assets/catastrophe/fire.png';
   static const String leaf = 'assets/catastrophe/leaf.png';
 
-  static const String title = 'Eco Explorer';
+  static const String title = 'Eco Explorer for Liquid Galaxy';
   static const String connected = 'LG CONNECTED';
   static const String disconnected = 'LG DISCONNECTED';
   static const String search = 'Search';
@@ -23,7 +23,21 @@ class Constants{
   static const String transcribe = 'TRANSCRIBED TEXT';
 
   //about data
-
+  static const String logo = 'assets/logos/logo.png';
+  static const String lgLogo = 'assets/logos/lg.png';
+  static const String gsocLogo = 'assets/logos/gsoc.png';
+  static const String logoLGEU = 'assets/logos/LogoLGEU.png';
+  static const String labLogo = 'assets/logos/lab.png';
+  static const String gdgLogo = 'assets/logos/gdg.png';
+  static const String flutterLleidaLogo = 'assets/logos/flutter_lleida.png';
+  static const String ticLogo = 'assets/logos/tic.png';
+  static const String pcitalLogo = 'assets/logos/pcital.png';
+  static const String buildWithAILogo = 'assets/logos/buildwithai.png';
+  static const String groqLogo = 'assets/logos/groq.png';
+  static const String liquidGalaxyAILogo = 'assets/logos/LiquidGalaxyAI.png';
+  static const String iitLogo = 'assets/logos/iit.png';
+  static const String androidLogo = 'assets/logos/android.png';
+  static const String flutterLogo = 'assets/logos/flutter.png';
 
   //help data
 

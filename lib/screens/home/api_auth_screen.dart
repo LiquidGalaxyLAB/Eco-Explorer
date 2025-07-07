@@ -7,6 +7,8 @@ import 'package:eco_explorer/widgets/theme_card.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../widgets/snackbar.dart';
+
 class ApiAuthScreen extends StatefulWidget {
   const ApiAuthScreen({super.key});
 
@@ -60,6 +62,13 @@ class _ApiAuthScreenState extends State<ApiAuthScreen> {
     if (_openWeatherController.text.isNotEmpty) {
       await prefs.setString('openWeatherApiKey', _openWeatherController.text);
     }
+
+    print(prefs.getString('groqApiKey'));
+    print(prefs.getString('deepgramApiKey'));
+    print(prefs.getString('nasaFirmsApiKey'));
+    print(prefs.getString('openWeatherApiKey'));
+
+    showSnackBar(context, 'Settings saved', Colors.grey[800]!);
   }
   @override
   Widget build(BuildContext context) {
@@ -84,10 +93,10 @@ class _ApiAuthScreenState extends State<ApiAuthScreen> {
                       ),
                     ),
                     SizedBox(height: 0.75*Constants.cardMargin(context),),
-                    TextInputField(label: labels[i], hint: hint, controller: controllers[i], i: 0,),
-                    SizedBox(height: 2.0*Constants.cardMargin(context),),
+                    TextInputField(label: labels[i], hint: hint, controller: controllers[i], i: 2,),
+                    SizedBox(height: 1.5*Constants.cardMargin(context),),
                   ],
-                  PrimaryButton(label: 'ENTER', onPressed: ()=>_saveSettings())
+                  PrimaryButton(label: 'UPDATE', onPressed: ()=>_saveSettings())
                 ],
               )
           ),
@@ -97,3 +106,4 @@ class _ApiAuthScreenState extends State<ApiAuthScreen> {
     );
   }
 }
+

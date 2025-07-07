@@ -40,11 +40,6 @@ class _AqiLineChartState extends State<AqiLineChart> {
                 isCurved: true,
                 color:Themes.smoothGraph
             ),
-            LineChartBarData(
-              spots: plots,
-              isCurved: false,
-              color:Themes.graph
-            ),
           ],
           minY: 1,
           maxY: 5,

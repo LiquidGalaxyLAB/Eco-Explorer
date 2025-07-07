@@ -33,7 +33,8 @@ class AqiRepository<M>{
           return await _loadFromLocal('Unknown Error Happened!');
         }
       }catch(e){
-        return await _loadFromLocal('Error in fetching: ${e.toString()}');
+        print(e.toString());
+        return await _loadFromLocal('Error in fetching');
       }
     }else{
       return await _loadFromLocal('Can\'t load API');

@@ -27,7 +27,7 @@ class InfoScreen extends ConsumerStatefulWidget {
 
 class _InfoScreenState extends ConsumerState<InfoScreen> {
   String mode = 'Story';
-  bool light = true;
+  bool light = false;
   double value = 0;
   String loadingText = 'Generating Tour';
 
@@ -171,37 +171,30 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
 
                                               final json = await provider.getTour(forest.name, mode,context);
                                               print(json);
-                                              if(json!=null) {
-                                                try{
-                                                  await Future.delayed(Duration(milliseconds: 500));
-                                                  setModalState(() {
-                                                    loadingText = 'Fetching you the description';
-                                                    value=0.67;
-                                                  });
-                                                  await Future.delayed(Duration(milliseconds: 500));
-                                                  TourModel model = TourModel.fromJson(json);
-                                                  setModalState(() {
-                                                    loadingText = 'Taking you there';
-                                                    value=1;
-                                                  });
-                                                  await Future.delayed(Duration(milliseconds: 500));
-                                                  setModalState(() {
-                                                    isLoading = false;
-                                                  });
-                                                  Navigator.of(context).pop();
-
-                                                  showOverlay(model, forest.name);
-                                                }catch(e){
-                                                  setModalState(() {
-                                                    isLoading = false;
-                                                  });
-                                                  showSnackBar(context, e.toString(), Themes.error);
-                                                  Navigator.of(context).pop();
-                                                }
-                                              }else{
+                                              try{
+                                                await Future.delayed(Duration(milliseconds: 500));
+                                                setModalState(() {
+                                                  loadingText = 'Fetching you the description';
+                                                  value=0.67;
+                                                });
+                                                await Future.delayed(Duration(milliseconds: 500));
+                                                TourModel model = TourModel.fromJson(json!);
+                                                setModalState(() {
+                                                  loadingText = 'Taking you there';
+                                                  value=1;
+                                                });
+                                                await Future.delayed(Duration(milliseconds: 500));
                                                 setModalState(() {
                                                   isLoading = false;
                                                 });
+                                                Navigator.of(context).pop();
+
+                                                showOverlay(model, forest.name);
+                                              }catch(e){
+                                                setModalState(() {
+                                                  isLoading = false;
+                                                });
+                                                showSnackBar(context, e.toString(), Themes.error);
                                                 Navigator.of(context).pop();
                                               }
                                             }
