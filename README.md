@@ -4,18 +4,18 @@
 
 # Eco Explorer for Liquid Galaxy
 
-##Table of Contents
+## Table of Contents
 
-##About the application
+## About the application
 
-##Features
+## Features
 
-##Tech Stack
+## Tech Stack
 
-##Prerequisites
+## Prerequisites
 
-##Usage
+## Usage
 
-###Downloading from GO Web Store
+### Downloading from GO Web Store
 
-###Building from Source
+### Building from Source
