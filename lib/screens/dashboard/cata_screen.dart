@@ -1,12 +1,11 @@
-
 import 'package:eco_explorer/constants/fonts.dart';
 import 'package:eco_explorer/constants/strings.dart';
 import 'package:eco_explorer/constants/theme.dart';
 import 'package:eco_explorer/models/fire/fire_model.dart';
 import 'package:eco_explorer/ref/values_provider.dart';
+import 'package:eco_explorer/screens/map_view.dart';
 import 'package:eco_explorer/utils/kml/balloon_entity.dart';
 import 'package:eco_explorer/utils/kml/kml_entity.dart';
-import 'package:eco_explorer/screens/map_view.dart';
 import 'package:eco_explorer/widgets/primary_button.dart';
 import 'package:eco_explorer/widgets/snackbar.dart';
 import 'package:eco_explorer/widgets/theme_card.dart';
@@ -19,10 +18,8 @@ import '../../ref/api_provider.dart';
 import '../../ref/instance_provider.dart';
 import '../../states/api_state.dart';
 import '../../utils/connection/ssh.dart';
+import '../../widgets/error_dialog_box.dart';
 import '../../widgets/timelapse.dart';
-import '../map_view.dart';
-import '../../widgets/error_dialog_box.dart';
-import '../../widgets/error_dialog_box.dart';
 
 class CataScreen extends ConsumerStatefulWidget {
   const CataScreen({super.key});
@@ -106,6 +103,7 @@ class _CataScreenState extends ConsumerState<CataScreen> {
                                                     ).toList();
 
                                                     if(forestFires.isEmpty){
+                                                      Navigator.pop(context);
                                                       showSnackBar(context, 'No fires found in this area', Themes.error);
                                                     }else{
                                                       showSnackBar(

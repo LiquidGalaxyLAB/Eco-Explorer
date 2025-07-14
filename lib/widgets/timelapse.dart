@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:eco_explorer/constants/strings.dart';
+import 'package:eco_explorer/utils/kml/balloon_entity.dart';
 import 'package:eco_explorer/utils/kml/kml_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -32,6 +34,8 @@ class _TimelapseState extends ConsumerState<Timelapse> {
   void initState() {
     super.initState();
     ssh = ref.read(sshProvider);
+    sendDefoKml();
+    ssh.sendKmltoSlave(context, BalloonEntity.forestCoverIndicatorBalloon(widget.forest, Constants.lossImage, 550/2847, Constants.defaultScale, 0, 0), Constants.rightRig(ssh.rigCount()));
   }
 
   @override
@@ -62,6 +66,7 @@ class _TimelapseState extends ConsumerState<Timelapse> {
                 setState(() {
                   _currentIndex = value;
                 });
+                sendDefoKml();
               },
             ),
           ),
@@ -70,6 +75,23 @@ class _TimelapseState extends ConsumerState<Timelapse> {
         Text('Selected Year: ${yearValues[_currentIndex.round()]}',style: Fonts.bold.copyWith(fontSize: Constants.totalHeight(context)*0.02,color: Themes.cardText),),
       ],
     );
+  }
+
+  sendDefoKml() async{
+    String filename = '${widget.forest.path}_deforestation_$_currentIndex.kml';
+
+    final res = jsonDecode(await rootBundle.loadString('assets/forest.json'));
+    final data = res['data'];
+    DeforestationDataModel model = DeforestationDataModel.fromJson(data, widget.forest.path, yearValues[_currentIndex.round()]);
+    File? file = await ssh.makeFile(filename, await KmlEntity.getDeforestationKml(
+        model, yearValues[_currentIndex.round()], widget.forest));
+    print("File created");
+    await ssh.kmlFileUpload(file!,filename);
+    print("Uploaded");
+    await ssh.sendKml(context, filename);
+    print("Kml sent ");
+    await ssh.flyToWithoutSaving(context, ref, widget.forest.lat, widget.forest.lon, Constants.forestAltitude, Constants.orbitScale, 0, 0);
+
   }
 }
 

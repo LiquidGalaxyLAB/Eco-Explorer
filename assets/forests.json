@@ -9,7 +9,7 @@
             "min_lat":"-17",
             "max_lon":"-50",
             "min_lon":"-80",
-            "lat": "-3",
+            "lat": "-2.99866",
             "long": "-60",
             "continent":"South_America",
             "ecosystem":"Tropical",
@@ -21,7 +21,7 @@
                 },
                 {
                     "name": "Orchid",
-                    "sci_name": "Orchidaceae",
+                    "sci_name": "Orchidaceae spp.",
                     "img_link":"orchid"
                 },
                 {
@@ -48,8 +48,7 @@
                 {
                     "name": "Gorilla",
                     "sci_name": "Gorilla gorilla",
-                    "img_link":"gorilla",
-                    "dae": ""
+                    "img_link":"gorilla"
                 },
                 {
                     "name": "Elephant",
@@ -73,7 +72,7 @@
             "max_lon":"155",
             "min_lon":"131",
             "lat": "-9",
-            "long": "147.85",
+            "long": "147.72",
             "continent":"Asia",
             "ecosystem":"Tropical",
             "biodiv": [
@@ -145,9 +144,9 @@
                     "img_link":"tiger"
                 },
                 {
-                    "name": "Mango",
-                    "sci_name": "Mangifera indica",
-                    "img_link":"mango"
+                    "name": "Mangrove",
+                    "sci_name": "Rhizophora mangle",
+                    "img_link":"mangrove"
                 },
                 {
                     "name": "Kingfisher",
@@ -176,9 +175,9 @@
                     "img_link":"black_bear"
                 },
                 {
-                    "name": "Rhododendron",
-                    "sci_name": "Rhododendron ferrugineum",
-                    "img_link":"rhododendron"
+                    "name": "Tulip",
+                    "sci_name": "Tulipa spp.",
+                    "img_link":"tulip"
                 },
                 {
                     "name": "Wild Turkey",
@@ -207,9 +206,9 @@
                     "img_link":"deer"
                 },
                 {
-                    "name": "Eucalyptus",
-                    "sci_name": "Eucalyptus spp.",
-                    "img_link":"eucalyptus"
+                    "name": "Bamboo",
+                    "sci_name": "Bambusa vulgaris",
+                    "img_link":"bamboo"
                 },
                 {
                     "name": "Magellanic Woodpecker",
@@ -243,12 +242,138 @@
                     "img_link":"crocodile"
                 },
                 {
-                    "name": "Ribbonwood",
-                    "sci_name": "Idiospermum australiense",
-                    "img_link":"ribbonwood"
+                    "name": "Pine",
+                    "sci_name": "Pinus spp.",
+                    "img_link":"pine"
                 }
             ]
         }
+    ],
 
-    ]
+    "data": {
+        "amazon": {
+            "files": [
+                "amazon_bolivia",
+                "amazon_brazil",
+                "amazon_colombia",
+                "amazon_peru"
+            ],
+            "magnitudes": {
+                "2003": [
+                    163,
+                    3250,
+                    122,
+                    73
+                ],
+                "2008": [
+                    370,
+                    2440,
+                    232,
+                    126
+                ],
+                "2013": [
+                    179,
+                    1950,
+                    139,
+                    209
+                ],
+                "2018": [
+                    301,
+                    2950,
+                    352,
+                    211
+                ],
+                "2023": [
+                    696,
+                    2810,
+                    196,
+                    227
+                ]
+            }
+        },
+        "congolian": {
+            "files": [
+                "congolian_east", "congolian_west"
+            ],
+            "magnitudes": {
+                "2003": [45, 307],
+                "2008": [57, 454],
+                "2013": [136, 1019],
+                "2018": [155, 1474],
+                "2023": [232, 1442]
+            }
+        },
+        "guinea": {
+            "files": [
+                "guinea_indonesia", "guinea_papua"
+            ],
+            "magnitudes": {
+                "2003": [545,32],
+                "2008": [1400,71],
+                "2013": [1140,57],
+                "2018": [1220,118],
+                "2023": [1400,84]
+            }
+        },
+        "taiga": {
+            "files": [
+                "taiga"
+            ],
+            "magnitudes": {
+                "2003": [3030],
+                "2008": [3050],
+                "2013": [4970],
+                "2018": [5560],
+                "2023": [3350]
+            }
+        },
+        "sunderbans": {
+            "files": [
+                "sunderbans"
+            ],
+            "magnitudes": {
+                "2003": [2],
+                "2008": [4],
+                "2013": [6],
+                "2018": [19],
+                "2023": [18]
+            }
+        },
+        "appalachian": {
+            "files": [
+                "appalachian"
+            ],
+            "magnitudes": {
+                "2003": [1650],
+                "2008": [2210],
+                "2013": [1740],
+                "2018": [2090],
+                "2023": [1380]
+            }
+        },
+        "valdivian": {
+            "files": [
+                "valdivian"
+            ],
+            "magnitudes": {
+                "2003": [83],
+                "2008": [123],
+                "2013": [102],
+                "2018": [77],
+                "2023": [107]
+            }
+        },
+        "daintree": {
+            "files": [
+                "daintree"
+            ],
+            "magnitudes": {
+                "2003": [374],
+                "2008": [206],
+                "2013": [260],
+                "2018": [251],
+                "2023": [191]
+            }
+        }
+    }
 }
