@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -153,6 +152,7 @@ class Ssh extends ChangeNotifier{
         await _client!
             .execute('"/home/$_username/bin/lg-relaunch" > /home/$_client/log.txt');
         await _client!.execute(command);
+        showSnackBar(context, 'Relaunch Successful', Colors.green);
       }
     }catch(e){
       showSnackBar(context, e.toString(), Themes.error);
@@ -169,6 +169,7 @@ class Ssh extends ChangeNotifier{
             'sshpass -p $_passwordOrKey ssh -t lg$i "echo $_passwordOrKey | sudo -S reboot"'
         );
       }
+      showSnackBar(context, 'Reboot Successful', Colors.green);
     }catch(e){
       showSnackBar(context, e.toString(), Themes.error);
     }
@@ -184,6 +185,7 @@ class Ssh extends ChangeNotifier{
             'sshpass -p $_passwordOrKey ssh -t lg$i "echo $_passwordOrKey | sudo -S poweroff"'
         );
       }
+      showSnackBar(context, 'Power Off Successful', Colors.green);
 
     }catch(e){
       showSnackBar(context, e.toString(), Themes.error);
@@ -200,6 +202,8 @@ class Ssh extends ChangeNotifier{
       }
 
       await _client!.run(query);
+
+      showSnackBar(context, 'Cleared Logos and KMLs', Colors.green);
     }catch(e){
       await reconnectToLG(context);
       clearKml(context);
@@ -283,7 +287,7 @@ class Ssh extends ChangeNotifier{
       if(_client==null) {
         return;
       }
-      await _client!.run('echo "playtour=Orbit" > /tmp/query.txt');
+      await _client!.run("echo 'playtour=Orbit' > /tmp/query.txt");
       print('tour started');
     } catch (e) {
       await startOrbit(context);

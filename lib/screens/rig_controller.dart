@@ -27,7 +27,6 @@ class RigController extends ConsumerStatefulWidget {
 
 class _RigControllerState extends ConsumerState<RigController> {
   late Ssh ssh;
-  late Throttling thr;
   late Throttling thr1;
   late Throttling thr2;
 
@@ -37,7 +36,8 @@ class _RigControllerState extends ConsumerState<RigController> {
   void initState() {
     super.initState();
     ssh = ref.read(sshProvider);
-    thr = Throttling<void>(duration: const Duration(milliseconds: 200));
+    thr1 = Throttling<void>(duration: const Duration(milliseconds: 200));
+    thr2 = Throttling<void>(duration: const Duration(milliseconds: 200));
     Future.microtask((){
       ref.read(isOrbitPlayingProvider.notifier).state = false;
     });
@@ -52,11 +52,10 @@ class _RigControllerState extends ConsumerState<RigController> {
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(mapVoiceProvider);
+    final isListening = state.isListening;
 
-    // final state = ref.watch(mapVoiceProvider);
-    // final isListening = state.isListening;
-
-    // final controller = ref.read(mapVoiceProvider.notifier);
+    final controller = ref.read(mapVoiceProvider.notifier);
 
     double latitude = ref.watch(latitudeProvider)!;
     double longitude = ref.watch(longitudeProvider)!;
@@ -68,9 +67,9 @@ class _RigControllerState extends ConsumerState<RigController> {
     isOrbitPlaying = ref.watch(isOrbitPlayingProvider);
 
     return PopScope(
-        onPopInvoked: (didPop) {
-          ref.read(isOrbitPlayingProvider.notifier).state = false;
-        },
+      onPopInvoked: (didPop) {
+        ref.read(isOrbitPlayingProvider.notifier).state = false;
+      },
       child: Scaffold(
         backgroundColor: Colors.black.withOpacity(0.75),
         appBar: AppBar(
@@ -89,8 +88,8 @@ class _RigControllerState extends ConsumerState<RigController> {
               SizedBox(height: Constants.totalHeight(context)*0.05,),
               ControllerButton(
                   onPressed: () async => isOrbitPlaying?stopOrbit(latitude, longitude, altitude):playOrbit(latitude, longitude, altitude)
-                // playOrbit(ssh, ref, context);
-                            ,
+                  // playOrbit(ssh, ref, context);
+                  ,
                   iconData: isOrbitPlaying?Icons.stop_outlined:Icons.play_arrow_outlined
               ),
               Row(
@@ -98,19 +97,32 @@ class _RigControllerState extends ConsumerState<RigController> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ControllerButton(onPressed: () async {
-                      
+                      double newAlt = (altitude - Constants.zoomStep).clamp(0.0, 1000000.0);
+
+                      await ssh.flyToWithoutSaving(context, ref, latitude, longitude,
+                          newAlt, zoom, tilt, heading);
+
                     },
                         iconData: Icons.zoom_in
                     ),
                     SizedBox(width: Constants.totalWidth(context)*0.15,),
                     ControllerButton(onPressed: () async {
-                      
-                      },
+                      double newAlt = (altitude + Constants.zoomStep).clamp(0.0, 1000000.0);
+
+                      await ssh.flyToWithoutSaving(context, ref, latitude, longitude,
+                          newAlt, zoom, tilt, heading);
+                    },
                         iconData: Icons.zoom_out
                     ),
                   ]
               ),
-
+              ControllerButton(onPressed: () async{
+                if (isListening) {
+                  await controller.stopListening();
+                } else {
+                  await controller.startListening(ref, context);
+                }
+              }, iconData: isListening?Icons.mic_off_outlined:Icons.mic_none),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -136,7 +148,22 @@ class _RigControllerState extends ConsumerState<RigController> {
                           ),
                           listener: (details) {
                             thr1.throttle(() async{
-                              
+                              double newLat = latitude - (details.y * Constants.latStep);
+                              double newLon = longitude + (details.x * Constants.lonStep);
+
+                              if (newLat > 90) {
+                                newLat = 180 - newLat;
+                                newLon = -newLon;
+                              }else if (newLat < -90) {
+                                newLat = -180 - newLat;
+                                newLon = -newLon;
+                              }
+
+                              if (newLon > 180) newLon -= 360;
+                              if (newLon < -180) newLon += 360;
+
+                              await ssh.flyToWithoutSaving(context, ref, newLat, newLon,
+                                  altitude,zoom,tilt,heading);
                             });
                           }
                       ),
@@ -166,7 +193,13 @@ class _RigControllerState extends ConsumerState<RigController> {
                           ),
                           listener: (details) {
                             thr2.throttle(() async{
-                              
+                              double newTilt = (tilt + (-details.y * Constants.tiltStep)).clamp(0.0, 90.0);
+                              double newHeading = (heading + (details.x * Constants.headingStep)) % 360;
+                              if (newHeading < 0) newHeading += 360;
+
+                              await ssh.flyToWithoutSaving(context, ref,
+                                  latitude, longitude, altitude, zoom, newTilt, newHeading
+                              );
                             });
                           }
                       ),
@@ -178,6 +211,25 @@ class _RigControllerState extends ConsumerState<RigController> {
               ),
               // SizedBox(height: Constants.totalHeight(context)*0.05,),
               SizedBox(height: Constants.totalHeight(context)*0.05,),
+              Visibility(
+                  visible: isListening,
+                  replacement: SizedBox(height: Constants.totalHeight(context)*0.2),
+                  child: Column(
+                    children: [
+                      Text((state.lastWords.isEmpty)?'TRANSCRIBED TEXT':state.lastWords,
+                        style: Fonts.medium.copyWith(fontSize: Constants.totalHeight(context)*0.025,color: Colors.white),),
+                      SizedBox(height: Constants.totalHeight(context)*0.03,),
+                      Lottie.asset(
+                        height: Constants.totalHeight(context)*0.1,
+                        'assets/voice/anim.json',
+                        fit: BoxFit.contain,
+                        animate: true,
+                      ),
+                      SizedBox(height: Constants.totalHeight(context)*0.025,),
+                      Text('Listening...', style: Fonts.regular.copyWith(fontSize: Constants.totalHeight(context)*0.02,color: Colors.white),),
+                    ],
+                  )
+              )
             ],
           ),
         ),
