@@ -53,6 +53,12 @@ class Constants{
   static const double orbitAltitude = 500000;
   static const double tourAltitude = 5000;
 
+  static const double latStep = 0.0005;
+  static const double lonStep = 0.0005;
+  static const double tiltStep = 1.0;
+  static const double headingStep = 2.0;
+  static const double zoomStep = 50;
+
   static cardRadius(context) => MediaQuery.of(context).size.height*0.025;
   static buttonRadius(context) => MediaQuery.of(context).size.height*0.015;
   static totalWidth(context) => MediaQuery.of(context).size.width;
