@@ -365,9 +365,23 @@ class _LgCommandsState extends ConsumerState<LgCommands> {
                 for (int i = 0; i < commands.length; i++) ...[
                   GestureDetector(
                       onTap: () async {
-                        print('Executing: ${commands[i]}');
-                        await functions[i]();
-                        print('Done');
+                        showDialog(context: context, builder: (context){
+                          return AlertDialog(
+                            backgroundColor: Themes.cardBg,
+                            actions: [
+                              TextButton(onPressed: () async{
+                                print('Executing: ${commands[i]}');
+                                await functions[i]();
+                                print('Done');
+                                Navigator.pop(context);
+                              }, child: Text('Yes',style: TextStyle(color: Themes.cardText))),
+                              TextButton(onPressed: (){
+                                Navigator.pop(context);
+                              }, child: Text('No',style: TextStyle(color: Themes.cardText))),
+                            ],
+                            title: Text('Are you sure to execute \'${commands[i]}?\'',style: TextStyle(color: Themes.cardText,fontSize: Constants.totalWidth(context) * 0.04),),
+                          );
+                        });
                       },
                       child: Container(
                         padding: EdgeInsets.all(Constants.cardPadding(context)),

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:dartssh2/dartssh2.dart';
@@ -8,6 +9,7 @@ import 'package:eco_explorer/utils/kml/look_at_entity.dart';
 import 'package:eco_explorer/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -225,8 +227,9 @@ class Ssh extends ChangeNotifier{
       var localPath = await getApplicationDocumentsDirectory();
       print(localPath.path.toString());
       File localFile = File('${localPath.path}/$filename');
-      await localFile.writeAsString(content);
+      await localFile.writeAsString(content,flush: true);
       print("file created");
+
       return localFile;
     }
     catch (e) {
@@ -241,8 +244,18 @@ class Ssh extends ChangeNotifier{
       }
 
       final sftp = await _client?.sftp();
-      print('$kmlName');
-      final file = await sftp?.open('/var/www/html/$kmlName',
+
+      final remotePath = '/var/www/html/$kmlName';
+
+      try {
+        await sftp?.remove(remotePath);
+      } catch (e) {
+      }
+
+      final fileContents = await inputFile.readAsString();
+      print("File contents:\n$fileContents");
+
+      final file = await sftp?.open(remotePath,
           mode: SftpFileOpenMode.create |
           SftpFileOpenMode.truncate |
           SftpFileOpenMode.write);
@@ -250,6 +263,7 @@ class Ssh extends ChangeNotifier{
       if (file == null) {
         return;
       }
+      await file.close();
     } catch (e) {
       print(e);
     }
@@ -287,7 +301,8 @@ class Ssh extends ChangeNotifier{
       if(_client==null) {
         return;
       }
-      await _client!.run("echo 'playtour=Orbit' > /tmp/query.txt");
+      await _client!.run('echo "" > /tmp/query.txt');
+      await _client!.run('echo "playtour=Orbit" > /tmp/query.txt');
       print('tour started');
     } catch (e) {
       await startOrbit(context);
@@ -330,6 +345,27 @@ class Ssh extends ChangeNotifier{
       await _client!.run(
           'echo "flytoview=$lookAt" > /tmp/query.txt');
       setMap(ref, latitude, longitude, altitude, zoom, tilt, heading);
+    } catch (e) {
+      showSnackBar(context, e.toString(), Themes.error);
+    }
+  }
+
+  flyTo(WidgetRef ref, BuildContext context, double latitude, double longitude, double zoom, double tilt,
+      double bearing) async {
+    try {
+      Future.delayed(Duration.zero).then((_) async {
+        ref.read(lastMapPositionProvider.notifier).state = CameraPosition(
+          target: LatLng(latitude, longitude),
+          zoom: zoom,
+          tilt: tilt,
+          bearing: bearing,
+        );
+      });
+
+      double altitude = 130000000.0 / pow(2, zoom);
+
+      await _client!.run(
+          'echo "flytoview=${LookAtEntity(longitude, latitude, altitude, zoom, tilt, bearing).linearLookAt()}" > /tmp/query.txt');
     } catch (e) {
       showSnackBar(context, e.toString(), Themes.error);
     }

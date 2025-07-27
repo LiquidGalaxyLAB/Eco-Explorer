@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:eco_explorer/constants/fonts.dart';
 import 'package:eco_explorer/screens/dashboard/biodiv_screen.dart';
 import 'package:eco_explorer/screens/dashboard/cata_screen.dart';
 import 'package:eco_explorer/screens/dashboard/enviro_screen.dart';
 import 'package:eco_explorer/screens/dashboard/info_screen.dart';
+import 'package:eco_explorer/screens/map_view.dart';
 import 'package:eco_explorer/utils/kml/balloon_entity.dart';
 import 'package:eco_explorer/widgets/connection_bar.dart';
 import 'package:eco_explorer/widgets/snackbar.dart';
@@ -17,6 +20,7 @@ import '../models/forests_model.dart';
 import '../ref/instance_provider.dart';
 import '../ref/values_provider.dart';
 import '../utils/connection/ssh.dart';
+import '../utils/kml/kml_entity.dart';
 import '../utils/orbit_controller.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -30,8 +34,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with TickerPr
   late int index;
   final title = ['Information','Biodiversity','Environment','Catastrophes'];
   final pages = [InfoScreen(), BiodivScreen(), EnviroScreen(), CataScreen()];
-
-  final List<MapType> maps = [MapType.satellite, MapType.terrain, MapType.hybrid];
 
   late Ssh ssh;
   late Forest forest;
@@ -49,6 +51,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with TickerPr
     Future.microtask((){
       ref.read(isOrbitPlayingProvider.notifier).state = false;
     });
+
+    ()async=>await ssh.sendKmltoSlave(context, BalloonEntity.orbitBalloon(ref.read(forestProvider.notifier).state!, Constants.forestImage(forest.path), Constants.orbitScale, 0, 0), Constants.rightRig(ssh.rigCount()));
+
   }
 
   @override
@@ -59,7 +64,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with TickerPr
 
     index = ref.watch(dashboardIndexProvider);
     final mapIndex = ref.watch(mapIndexProvider);
-    final selectedMapType = maps[mapIndex];
+    // final selectedMapType = maps[mapIndex];
 
     isOrbitPlaying = ref.watch(isOrbitPlayingProvider);
 
@@ -83,24 +88,25 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with TickerPr
                       onPressed: () { Navigator.pop(context); },
                       icon: Icon(Icons.arrow_back,color: textColour,),
                     ),
-                    expandedHeight: Constants.totalHeight(context)*0.3,
+                    expandedHeight: Constants.totalHeight(context)*0.4,
                     pinned: true,
                     flexibleSpace: FlexibleSpaceBar(
                       titlePadding: EdgeInsets.zero,
                       background: Stack(
                         alignment: Alignment.topCenter,
                         children: [
-                          GoogleMap(
-                            key: ValueKey(selectedMapType),
-                            mapType: selectedMapType,
-                            // onMapCreated: (GoogleMapController controller) {
-                            //   mapController = controller;
-                            // },
-                            initialCameraPosition: CameraPosition(
-                                target: LatLng(lat,lon),
-                                zoom: Constants.mapScale
-                            ),
-                          ),
+                          // GoogleMap(
+                          //   // key: ValueKey(selectedMapType),
+                          //   // mapType: selectedMapType,
+                          //   // onMapCreated: (GoogleMapController controller) {
+                          //   //   mapController = controller;
+                          //   // },
+                          //   initialCameraPosition: CameraPosition(
+                          //       target: LatLng(lat,lon),
+                          //       zoom: Constants.mapScale
+                          //   ),
+                          // ),
+                          Positioned.fill(child: MapView(lat: lat, lon: lon)),
                           Padding(
                             padding: EdgeInsets.only(top: Constants.totalHeight(context)*0.01),
                             child: Row(
@@ -200,7 +206,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with TickerPr
                               setState(() {
                                 ref.read(mapIndexProvider.notifier).state = index;
                                 // selectedMapType = maps[index];
-                                print('Selected: $selectedMapType');
+                                // print('Selected: $selectedMapType');
                               });
                             },
                             selectedColor: Themes.mapActiveText,
@@ -245,6 +251,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with TickerPr
               shape: CircleBorder(),
               backgroundColor: Colors.transparent,
               onPressed: () {
+
               },
               // child: Image.asset(
               //   'assets/voice/voice.png',
@@ -336,17 +343,37 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with TickerPr
       return;
     }
 
-    await ssh.sendKmltoSlave(context, BalloonEntity.orbitBalloon(ref.read(forestProvider.notifier).state!, Constants.forestImage(forest.path), Constants.orbitScale, 0, 0), Constants.rightRig(ssh.rigCount()));
-    ref.read(isOrbitPlayingProvider.notifier).state = true;
-    await OrbitController().startOrbit(context, ref, ssh, lat, lon, Constants.orbitAltitude);
-    if (!mounted) {
+    File? file;
+    String filename = 'Orbit.kml';
+
+    String kmlContent = KmlEntity.buildOrbit(lat, lon);
+    file = await ssh.makeFile(Constants.filename, kmlContent);
+
+    if (file == null) {
+      showSnackBar(context, 'KML creation failed', Themes.error);
       return;
     }
-    await stopOrbit(lat, lon);
+
+    await ssh.kmlFileUpload(file, filename);
+    await ssh.sendKml(context, filename);
+    await Future.delayed(Duration(seconds: 2));
+    await ssh.startOrbit(context);
+
+    ref.read(isOrbitPlayingProvider.notifier).state = true;
+
+    await ssh.sendKmltoSlave(context, BalloonEntity.orbitBalloon(ref.read(forestProvider.notifier).state!, Constants.forestImage(forest.path), Constants.orbitScale, 0, 0), Constants.rightRig(ssh.rigCount()));
+    // await OrbitController().startOrbit(context, ref, ssh, lat, lon, Constants.orbitAltitude);
+    //
+    // await stopOrbit(lat, lon);
+
+    await Future.delayed(Duration(seconds: 45),() async {
+      ref.read(isOrbitPlayingProvider.notifier).state = false;
+    });
   }
 
   stopOrbit(lat, lon) async{
     ref.read(isOrbitPlayingProvider.notifier).state = false;
-    await OrbitController().stopOrbit(context, ssh, lat, lon,Constants.forestAltitude);
+    await ssh.flyTo(ref, context, ref.read(lastMapPositionProvider)!.target.latitude,
+        ref.read(lastMapPositionProvider)!.target.longitude, ref.read(lastMapPositionProvider)!.zoom,ref.read(lastMapPositionProvider)!.tilt,ref.read(lastMapPositionProvider)!.bearing);
   }
 }
