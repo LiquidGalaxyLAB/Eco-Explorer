@@ -1,13 +1,18 @@
+import 'package:eco_explorer/constants/strings.dart';
+import 'package:eco_explorer/models/forests_model.dart';
+import 'package:eco_explorer/utils/kml/look_at_entity.dart';
+import 'package:eco_explorer/utils/kml/noise_polygon_generator.dart';
+import 'package:eco_explorer/models/tour_model.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-import '../../constants/strings.dart';
 import '../../models/deforestation_data_model.dart';
 import '../../models/fire/fire_model.dart';
-import '../../models/forests_model.dart';
-import '../../models/tour_model.dart';
-import 'look_at_entity.dart';
-import 'noise_polygon_generator.dart';
+import '../../ref/instance_provider.dart';
+import '../connection/ssh.dart';
+import 'balloon_entity.dart';
 
 class KmlEntity{
   static String getKmlSkeleton(String content, String name)=>'''
@@ -79,22 +84,82 @@ class KmlEntity{
     </kml>
     ''';
 
-  static String buildForestTour(TourModel model, double duration) {
+  static String buildOrbit(double lat, double lon){
     String lookAts = '';
 
-    for (var location in model.locations) {
-      lookAts += '''<gx:FlyTo>
-  <gx:duration>$duration</gx:duration>
-  <gx:flyToMode>bounce</gx:flyToMode>
-  ${LookAtEntity(location.lon, location.lat, 0, Constants.tourScale, 30, 0).lookAt()}
-</gx:FlyTo>
+    for (int i=0;i<=360;i+=10) {
+      lookAts += '''
+      <gx:FlyTo>
+              <gx:duration>1.2</gx:duration>
+              <gx:flyToMode>smooth</gx:flyToMode>
+              <LookAt>
+                  <longitude>$lon</longitude>
+                  <latitude>$lat</latitude>
+                  <heading>${i.toDouble()}</heading>
+                  <tilt>60</tilt>
+                  <range>40000</range>
+                  <gx:fovy>60</gx:fovy> 
+                  <altitude>3341.7995674</altitude> 
+                  <gx:altitudeMode>absolute</gx:altitudeMode>
+              </LookAt>
+            </gx:FlyTo>
 ''';
     }
 
     return '''<?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
    <gx:Tour>
-   <name>Forest Tour</name>
+   <name>Orbit</name>
+      <gx:Playlist>
+         $lookAts
+      </gx:Playlist>
+   </gx:Tour>
+</kml>''';
+  }
+
+  static Future<String> buildForestTour(TourModel model) async {
+    String lookAts = '';
+
+    for (var location in model.locations) {
+
+      // await ssh.sendKmltoSlave(context, BalloonEntity.tourBalloon(ref.read(forestProvider.notifier).state!, location.name, Constants.orbitScale, 0, 0), Constants.rightRig(ssh.rigCount()));
+
+      lookAts += '''<gx:FlyTo>
+  <gx:duration>1.2</gx:duration>
+  <gx:flyToMode>bounce</gx:flyToMode>
+  <longitude>${location.lon}</longitude>
+  <latitude>${location.lat}</latitude>
+  <heading>0</heading>
+  <tilt>60</tilt>
+  <range>40000</range>
+  <gx:fovy>60</gx:fovy> 
+  <altitude>3341.7995674</altitude> 
+  <gx:altitudeMode>absolute</gx:altitudeMode>
+</gx:FlyTo>
+''';
+      for (int i=0;i<=360;i+=10) {
+        lookAts += '''<gx:FlyTo>
+  <gx:duration>1.2</gx:duration>
+  <gx:flyToMode>smooth</gx:flyToMode>
+  <LookAt>
+      <longitude>${location.lon}</longitude>
+      <latitude>${location.lat}</latitude>
+      <heading>${i.toDouble()}</heading>
+      <tilt>60</tilt>
+      <range>40000</range>
+      <gx:fovy>60</gx:fovy> 
+      <altitude>3341.7995674</altitude> 
+      <gx:altitudeMode>absolute</gx:altitudeMode>
+  </LookAt>
+</gx:FlyTo>
+''';
+      }
+    }
+
+    return '''<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+   <gx:Tour>
+   <name>Orbit</name>
       <gx:Playlist>
          $lookAts
       </gx:Playlist>
@@ -281,8 +346,8 @@ $firePlacemarks
 
   static Future<String> getDeforestationKml(DeforestationDataModel model, int year, Forest forest) async{
 
-    List<String> borders = ['ff41f99c','ff7ef645','ffa1ffa9','ff0b6128','ff191c19'];
-    List<String> fills = ['6640ffa5','6691ff45','6684ff7e','660b6128','665a6155'];
+    List<String> borders = ['ff30ff3b', 'ff00ff95', 'ff00ffcc', 'ff00aeff', 'ff5934c7'];
+    List<String> fills = ['6630ff3b', '6600ff95', '6600ffcc', '6600aeff', '665934c7'];
 
     List<String> files = model.files;
     List<int> magnitudes = model.magnitudes;
