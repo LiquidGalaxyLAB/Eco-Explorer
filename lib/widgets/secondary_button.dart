@@ -1,6 +1,6 @@
+import 'package:eco_explorer/constants/fonts.dart';
 import 'package:flutter/material.dart';
 
-import '../constants/fonts.dart';
 import '../constants/strings.dart';
 import '../constants/theme.dart';
 

@@ -35,7 +35,7 @@ class _TimelapseState extends ConsumerState<Timelapse> {
     super.initState();
     ssh = ref.read(sshProvider);
     sendDefoKml();
-    ssh.sendKmltoSlave(context, BalloonEntity.forestCoverIndicatorBalloon(widget.forest, Constants.lossImage, 550/2847, Constants.defaultScale, 0, 0), Constants.rightRig(ssh.rigCount()));
+    ssh.sendKmltoSlave(context, BalloonEntity.forestCoverIndicatorBalloon(widget.forest, Constants.lossImage, 550/2847, Constants.defaultScale, 0, 0,yearValues[0]), Constants.rightRig(ssh.rigCount()));
   }
 
   @override
@@ -62,11 +62,11 @@ class _TimelapseState extends ConsumerState<Timelapse> {
               max: (yearValues.length - 1).toDouble(),
               divisions: yearValues.length - 1,
               label: yearValues[_currentIndex.round()].toString(),
-              onChanged: (double value) {
+              onChanged: (double value) async {
                 setState(() {
                   _currentIndex = value;
                 });
-                sendDefoKml();
+                await sendDefoKml();
               },
             ),
           ),
@@ -80,18 +80,18 @@ class _TimelapseState extends ConsumerState<Timelapse> {
   sendDefoKml() async{
     String filename = '${widget.forest.path}_deforestation_$_currentIndex.kml';
 
-    final res = jsonDecode(await rootBundle.loadString('assets/forest.json'));
+    final res = jsonDecode(await rootBundle.loadString('assets/deforestation.json'));
     final data = res['data'];
     DeforestationDataModel model = DeforestationDataModel.fromJson(data, widget.forest.path, yearValues[_currentIndex.round()]);
-    File? file = await ssh.makeFile(filename, await KmlEntity.getDeforestationKml(
+    File? file = await ssh.makeFile(Constants.filename, await KmlEntity.getDeforestationKml(
         model, yearValues[_currentIndex.round()], widget.forest));
     print("File created");
     await ssh.kmlFileUpload(file!,filename);
     print("Uploaded");
     await ssh.sendKml(context, filename);
     print("Kml sent ");
+    ssh.sendKmltoSlave(context, BalloonEntity.forestCoverIndicatorBalloon(widget.forest, Constants.lossImage, 550/2847, Constants.defaultScale, 0, 0,yearValues[_currentIndex.round()]), Constants.rightRig(ssh.rigCount()));
     await ssh.flyToWithoutSaving(context, ref, widget.forest.lat, widget.forest.lon, Constants.forestAltitude, Constants.orbitScale, 0, 0);
-
   }
 }
 

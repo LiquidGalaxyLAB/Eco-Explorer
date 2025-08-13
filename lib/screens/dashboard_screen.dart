@@ -6,7 +6,9 @@ import 'package:eco_explorer/screens/dashboard/cata_screen.dart';
 import 'package:eco_explorer/screens/dashboard/enviro_screen.dart';
 import 'package:eco_explorer/screens/dashboard/info_screen.dart';
 import 'package:eco_explorer/screens/map_view.dart';
+import 'package:eco_explorer/screens/voice_dialog.dart';
 import 'package:eco_explorer/utils/kml/balloon_entity.dart';
+import 'package:eco_explorer/utils/orbit_controller.dart';
 import 'package:eco_explorer/widgets/connection_bar.dart';
 import 'package:eco_explorer/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +23,6 @@ import '../ref/instance_provider.dart';
 import '../ref/values_provider.dart';
 import '../utils/connection/ssh.dart';
 import '../utils/kml/kml_entity.dart';
-import '../utils/orbit_controller.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -81,177 +82,179 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with TickerPr
             backgroundColor: Themes.bg,
             extendBodyBehindAppBar: true,
             body: CustomScrollView(
-                slivers: [
-                  SliverAppBar(
-                    backgroundColor: (mapIndex!=1)?Color(0xff364935):Color(0xffCEF1DC),
-                    leading: IconButton(
-                      onPressed: () { Navigator.pop(context); },
-                      icon: Icon(Icons.arrow_back,color: textColour,),
-                    ),
-                    expandedHeight: Constants.totalHeight(context)*0.4,
-                    pinned: true,
-                    flexibleSpace: FlexibleSpaceBar(
-                      titlePadding: EdgeInsets.zero,
-                      background: Stack(
-                        alignment: Alignment.topCenter,
-                        children: [
-                          // GoogleMap(
-                          //   // key: ValueKey(selectedMapType),
-                          //   // mapType: selectedMapType,
-                          //   // onMapCreated: (GoogleMapController controller) {
-                          //   //   mapController = controller;
-                          //   // },
-                          //   initialCameraPosition: CameraPosition(
-                          //       target: LatLng(lat,lon),
-                          //       zoom: Constants.mapScale
-                          //   ),
-                          // ),
-                          Positioned.fill(child: MapView(lat: lat, lon: lon)),
-                          Padding(
-                            padding: EdgeInsets.only(top: Constants.totalHeight(context)*0.01),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                SizedBox(height: Constants.totalWidth(context)*0.15,),
-                                Column(
-                                  children: [
-                                    Text('Latitude',style: Fonts.bold.copyWith(fontSize: Constants.totalHeight(context)*0.02,color: textColour),),
-                                    SizedBox(height: Constants.totalHeight(context)*0.01,),
-                                    Text(lat.toString(),style: Fonts.bold.copyWith(fontSize: Constants.totalHeight(context)*0.02,color:textColour),),
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    Text('Longitude',style: Fonts.bold.copyWith(fontSize: Constants.totalHeight(context)*0.02,color: textColour),),
-                                    SizedBox(height: Constants.totalHeight(context)*0.01,),
-                                    Text(lon.toString(),style: Fonts.bold.copyWith(fontSize: Constants.totalHeight(context)*0.02,color: textColour),),
-                                  ],
-                                ),
-                                SizedBox(width: Constants.totalHeight(context)*0.005,)
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      title: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          SizedBox(width: Constants.totalWidth(context)*0.01,),
-                          SizedBox(
-                            width: Constants.totalWidth(context)*0.45,
-                            child: Text(
-                              forest.name,
-                              style: Fonts.bold.copyWith(
-                                  fontSize: Constants.totalWidth(context)*0.04,
-                                  color: textColour),
-                              maxLines: 2,
-                              // strokeColor: Colors.black,strokeWidth: 2,
-                            ),
-                          ),
-                          // SizedBox(width: Constants.totalWidth(context)*0.1,),
-                          TextButton(
-                            onPressed: () async {
-                              if(ssh.isConnected == false){
-                                showSnackBar(context, 'Not connected to the rig', Themes.error);
-                                return;
-                              }
-                              isOrbitPlaying?await stopOrbit(lat, lon): await playOrbit(lat, lon);
-                            },
-                            child: Tooltip(
-                              message: isOrbitPlaying?'Stop Orbit':'Play Orbit',
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.all(Radius.circular(Constants.totalWidth(context)*0.05)),
-                                    boxShadow: [
-                                      BoxShadow(
-                                          color: Colors.black.withOpacity(0.5),
-                                          blurRadius: 5
-                                      )]
-                                ),
-                                child: CircleAvatar(
-                                    radius: Constants.totalWidth(context)*0.035,
-                                    backgroundColor: Colors.white,
-                                    child: Center(child: Icon(isOrbitPlaying?Icons.stop:Icons.play_arrow,
-                                      color: Colors.black,size: Constants.totalWidth(context)*0.05,),
-                                    )
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+              slivers: [
+                SliverAppBar(
+                  backgroundColor: (mapIndex!=1)?Color(0xff364935):Color(0xffCEF1DC),
+                  leading: IconButton(
+                    onPressed: () { Navigator.pop(context); },
+                    icon: Icon(Icons.arrow_back,color: textColour,),
                   ),
-                  SliverToBoxAdapter(
-                    child: Column(
+                  expandedHeight: Constants.totalHeight(context)*0.4,
+                  pinned: true,
+                  flexibleSpace: FlexibleSpaceBar(
+                    titlePadding: EdgeInsets.zero,
+                    background: Stack(
+                      alignment: Alignment.topCenter,
                       children: [
-                        // Stack(
-                        //   alignment: AlignmentDirectional.bottomCenter,
-                        //   children: [
-                        //   ],
+                        // GoogleMap(
+                        //   // key: ValueKey(selectedMapType),
+                        //   // mapType: selectedMapType,
+                        //   // onMapCreated: (GoogleMapController controller) {
+                        //   //   mapController = controller;
+                        //   // },
+                        //   initialCameraPosition: CameraPosition(
+                        //       target: LatLng(lat,lon),
+                        //       zoom: Constants.mapScale
+                        //   ),
                         // ),
-                        SizedBox(height: Constants.cardMargin(context),),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Themes.mapInactiveBg,
-                            borderRadius: BorderRadius.circular(Constants.totalWidth(context)*0.075),
-                          ),
-                          padding: EdgeInsets.zero,
-                          child: ToggleButtons(
-                            borderRadius: BorderRadius.circular(Constants.totalWidth(context)*0.075),
-                            isSelected: List.generate(labels.length, (i) => i == mapIndex),
-                            onPressed: (index) {
-                              setState(() {
-                                ref.read(mapIndexProvider.notifier).state = index;
-                                // selectedMapType = maps[index];
-                                // print('Selected: $selectedMapType');
-                              });
-                            },
-                            selectedColor: Themes.mapActiveText,
-                            selectedBorderColor: Themes.mapActiveBg,
-                            borderColor: Themes.mapActiveBg,
-                            color: Themes.mapInactiveText,
-                            fillColor: Themes.mapActiveBg,
-                            splashColor: Colors.transparent,
-                            constraints: BoxConstraints(minHeight: Constants.totalWidth(context)*0.1, minWidth: Constants.totalWidth(context)*0.25),
-                            children: labels
-                                .map((label) => Text(
-                              label,
-                              style: Fonts.semiBold,
-                            ))
-                                .toList(),
-                          ),
-                        ),
-                        SizedBox(height: Constants.cardMargin(context),),
-                        Padding(padding: EdgeInsets.symmetric(horizontal: Constants.cardPadding(context)),
-                          child: Column(
-                            children: [
-                              ConnectionBar(ref: ref,),
-                              SizedBox(height: 0.5*Constants.cardMargin(context),),
-                              Row(
-                                children: [
-                                  Text(title[index], style: Fonts.bold.copyWith(fontSize: Constants.totalHeight(context)*0.03,color: Themes.secondaryText),),
-                                ],
-                              ),
-                              SizedBox(height: Constants.cardMargin(context),),
-                              pages[index],
-                              SizedBox(height: Constants.bottomGap(context)),
-                            ],
-                          ),
-                        )
+                        Positioned.fill(child: MapView(lat: lat, lon: lon)),
+                    Padding(
+                    padding: EdgeInsets.only(top: Constants.totalHeight(context)*0.01),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      SizedBox(height: Constants.totalWidth(context)*0.15,),
+                    Column(
+                    children: [
+                    Text('Latitude',style: Fonts.bold.copyWith(fontSize: Constants.totalHeight(context)*0.02,color: textColour),),
+                    SizedBox(height: Constants.totalHeight(context)*0.01,),
+                    Text(lat.toString(),style: Fonts.bold.copyWith(fontSize: Constants.totalHeight(context)*0.02,color:textColour),),
+                    ],
+                    ),
+                    Column(
+                    children: [
+                    Text('Longitude',style: Fonts.bold.copyWith(fontSize: Constants.totalHeight(context)*0.02,color: textColour),),
+                    SizedBox(height: Constants.totalHeight(context)*0.01,),
+                    Text(lon.toString(),style: Fonts.bold.copyWith(fontSize: Constants.totalHeight(context)*0.02,color: textColour),),
+                    ],
+                    ),
+                    SizedBox(width: Constants.totalHeight(context)*0.005,)
+                    ],
+                    ),
+                    ),
                       ],
                     ),
-                  )
-                ]
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        SizedBox(width: Constants.totalWidth(context)*0.01,),
+                        SizedBox(
+                          width: Constants.totalWidth(context)*0.45,
+                          child: Text(
+                            forest.name,
+                            style: Fonts.bold.copyWith(
+                                fontSize: Constants.totalWidth(context)*0.04,
+                                color: textColour),
+                            maxLines: 2,
+                            // strokeColor: Colors.black,strokeWidth: 2,
+                          ),
+                        ),
+                        // SizedBox(width: Constants.totalWidth(context)*0.1,),
+                        TextButton(
+                          onPressed: () async {
+                            if(ssh.isConnected == false){
+                              showSnackBar(context, 'Not connected to the rig', Themes.error);
+                              return;
+                            }
+                            isOrbitPlaying?await stopOrbit(lat, lon): await playOrbit(lat, lon);
+                          },
+                          child: Tooltip(
+                            message: isOrbitPlaying?'Stop Orbit':'Play Orbit',
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.all(Radius.circular(Constants.totalWidth(context)*0.05)),
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Colors.black.withOpacity(0.5),
+                                        blurRadius: 5
+                                    )]
+                              ),
+                              child: CircleAvatar(
+                                radius: Constants.totalWidth(context)*0.035,
+                                backgroundColor: Colors.white,
+                                child: Center(child: Icon(isOrbitPlaying?Icons.stop:Icons.play_arrow,
+                                  color: Colors.black,size: Constants.totalWidth(context)*0.05,),
+                                )
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: Column(
+                    children: [
+                      // Stack(
+                      //   alignment: AlignmentDirectional.bottomCenter,
+                      //   children: [
+                      //   ],
+                      // ),
+                      SizedBox(height: Constants.cardMargin(context),),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Themes.mapInactiveBg,
+                          borderRadius: BorderRadius.circular(Constants.totalWidth(context)*0.075),
+                        ),
+                        padding: EdgeInsets.zero,
+                        child: ToggleButtons(
+                          borderRadius: BorderRadius.circular(Constants.totalWidth(context)*0.075),
+                          isSelected: List.generate(labels.length, (i) => i == mapIndex),
+                          onPressed: (index) {
+                            setState(() {
+                              ref.read(mapIndexProvider.notifier).state = index;
+                              // selectedMapType = maps[index];
+                              // print('Selected: $selectedMapType');
+                            });
+                          },
+                          selectedColor: Themes.mapActiveText,
+                          selectedBorderColor: Themes.mapActiveBg,
+                          borderColor: Themes.mapActiveBg,
+                          color: Themes.mapInactiveText,
+                          fillColor: Themes.mapActiveBg,
+                          splashColor: Colors.transparent,
+                          constraints: BoxConstraints(minHeight: Constants.totalWidth(context)*0.1, minWidth: Constants.totalWidth(context)*0.25),
+                          children: labels
+                              .map((label) => Text(
+                            label,
+                            style: Fonts.semiBold,
+                          ))
+                              .toList(),
+                        ),
+                      ),
+                      SizedBox(height: Constants.cardMargin(context),),
+                      Padding(padding: EdgeInsets.symmetric(horizontal: Constants.cardPadding(context)),
+                        child: Column(
+                          children: [
+                            ConnectionBar(ref: ref,),
+                            SizedBox(height: 0.5*Constants.cardMargin(context),),
+                            Row(
+                              children: [
+                                Text(title[index], style: Fonts.bold.copyWith(fontSize: Constants.totalHeight(context)*0.03,color: Themes.secondaryText),),
+                              ],
+                            ),
+                            SizedBox(height: Constants.cardMargin(context),),
+                            pages[index],
+                            SizedBox(height: Constants.bottomGap(context)),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                )
+              ]
             ),
             floatingActionButton: FloatingActionButton(
               tooltip: 'Voice Assistant',
               shape: CircleBorder(),
               backgroundColor: Colors.transparent,
               onPressed: () {
-
+                showModalBottomSheet(context: context, builder: (context){
+                  return VoiceDialog(provider: dashboardVoiceProvider);
+                });
               },
               // child: Image.asset(
               //   'assets/voice/voice.png',
@@ -354,9 +357,21 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with TickerPr
       return;
     }
 
+    await ssh.clearMaster(context);
+
     await ssh.kmlFileUpload(file, filename);
     await ssh.sendKml(context, filename);
-    await Future.delayed(Duration(seconds: 2));
+    await ssh.startOrbit(context);
+
+    file = await ssh.makeFile(Constants.filename, kmlContent);
+
+    if (file == null) {
+      showSnackBar(context, 'KML creation failed', Themes.error);
+      return;
+    }
+
+    await ssh.kmlFileUpload(file, filename);
+    await ssh.sendKml(context, filename);
     await ssh.startOrbit(context);
 
     ref.read(isOrbitPlayingProvider.notifier).state = true;

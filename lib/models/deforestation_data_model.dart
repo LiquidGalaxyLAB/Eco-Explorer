@@ -6,15 +6,12 @@ class DeforestationDataModel{
 
   DeforestationDataModel({required this.files, required this.magnitudes});
 
-  factory DeforestationDataModel.fromJson(String jsonStr, String forest, int year) {
-    Map<String, dynamic> json = jsonDecode(jsonStr);
+  factory DeforestationDataModel.fromJson(Map<String, dynamic> json, String forest, int year) {
 
-    final data = json['data'];
-    final forestData = data[forest];
+    final forestData = json[forest];
     final files = (forestData['files'] as List).map((e)=>e.toString()).toList();
     final magnitudes = (forestData['magnitudes']['$year'] as List).map((e)=>int.parse(e.toString())).toList();
 
     return DeforestationDataModel(files: files, magnitudes: magnitudes);
   }
-
 }

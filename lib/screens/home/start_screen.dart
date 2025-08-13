@@ -1,6 +1,7 @@
 import 'package:eco_explorer/models/forests_model.dart';
 import 'package:eco_explorer/ref/values_provider.dart';
 import 'package:eco_explorer/widgets/forest_element.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -44,10 +45,17 @@ class _StartScreenState extends ConsumerState<StartScreen> {
             return Center(child: CircularProgressIndicator(color: Themes.cardText),);
           }
           if(state is ForestSuccess){
-            List<Forest> forests = state.visibleForests.forests;
-            Future.microtask((){
+
+            final forests = state.visibleForests.forests;
+
+            WidgetsBinding.instance.addPostFrameCallback((_) {
               ref.read(forestListProvider.notifier).state = forests;
             });
+            // final currentForests = ref.read(forestListProvider);
+
+            // if (!listEquals(currentForests, forests)) {
+            //   ref.read(forestListProvider.notifier).state = forests;
+            // }
 
             return Column(
               children: [

@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 //backgrounds
@@ -18,6 +19,7 @@ class Themes{
 
   static Color timelapse = Color(0xffA7ED37);
 
+  static Color hyperlink = Colors.blue;
 
 //textbox
   static Color textboxOutline = Color(0xffE0E5D2);
@@ -53,8 +55,8 @@ class Themes{
   static Color openControllerBg = Colors.white;
   static Color openControllerFill = Colors.black;
 
-  static Color smoothGraph = Color(0xff58E259);
-  static Color graph = Color(0xffE56449);
+  static Color graph = Color(0xff58E259);
+  static Color smoothGraph = Color(0xffE56449);
 }
 
 //levels

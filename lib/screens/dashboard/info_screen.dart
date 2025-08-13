@@ -1,22 +1,23 @@
 import 'package:eco_explorer/constants/fonts.dart';
 import 'package:eco_explorer/constants/theme.dart';
 import 'package:eco_explorer/models/forests_model.dart';
+import 'package:eco_explorer/screens/tour_viewer.dart';
+import 'package:eco_explorer/models/tour_model.dart';
 import 'package:eco_explorer/widgets/secondary_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../constants/strings.dart';
-import '../../models/tour_model.dart';
 import '../../providers/groq_tour_provider.dart';
 import '../../ref/instance_provider.dart';
 import '../../ref/values_provider.dart';
 import '../../utils/connection/ssh.dart';
+import '../../widgets/error_dialog_box.dart';
 import '../../widgets/primary_button.dart';
 import '../../widgets/snackbar.dart';
 import '../../widgets/theme_card.dart';
 import '../../widgets/theme_dialog_box.dart';
-import '../tour_viewer.dart';
 
 class InfoScreen extends ConsumerStatefulWidget {
   const InfoScreen({super.key});
@@ -29,7 +30,7 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
   String mode = 'Story';
   bool light = false;
   double value = 0;
-  String loadingText = 'Generating Tour';
+  String loadingText = 'Beware of AI hallucinations';
 
   OverlayEntry? entry;
   late Ssh ssh;
@@ -102,7 +103,7 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                                       children: [
                                         CircularProgressIndicator(
                                           color: Themes.cardText,
-                                          value: value,
+                                        value: value,
                                         ),
                                         SizedBox(height: 0.5*Constants.cardMargin(context),),
                                         Text(loadingText,style: Fonts.medium.copyWith(fontSize: Constants.totalHeight(context)*0.015,color: Themes.cardText),)
@@ -167,14 +168,15 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                                                 value=0.33;
                                               });
 
-                                              final GroqTourProvider provider = GroqTourProvider();
-
-                                              final json = await provider.getTour(forest.name, mode,context);
-                                              print(json);
                                               try{
+                                                final GroqTourProvider provider = GroqTourProvider();
+
+                                                final json = await provider.getTour(forest.name, mode,context);
+                                                print(json);
+
                                                 await Future.delayed(Duration(milliseconds: 500));
                                                 setModalState(() {
-                                                  loadingText = 'Fetching you the description';
+                                                  loadingText = 'Generating Tour';
                                                   value=0.67;
                                                 });
                                                 await Future.delayed(Duration(milliseconds: 500));
@@ -189,13 +191,20 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                                                 });
                                                 Navigator.of(context).pop();
 
-                                                showOverlay(model, forest.name);
+                                                showOverlay(model, forest.path);
+                                                setModalState(() {
+                                                  loadingText = 'Beware of AI hallucinations';
+                                                  value=0;
+                                                });
                                               }catch(e){
                                                 setModalState(() {
                                                   isLoading = false;
                                                 });
-                                                showSnackBar(context, e.toString(), Themes.error);
                                                 Navigator.of(context).pop();
+                                                showDialog(
+                                                    context: outerContext,
+                                                    builder: (context)=>ErrorDialogBox(error: e.toString(),)
+                                                );
                                               }
                                             }
                                         )
@@ -208,6 +217,7 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                     );
                   }
               );
+              //on tapping start
             },
             icon: CupertinoIcons.airplane
         ),
@@ -218,7 +228,12 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
   void showOverlay(TourModel model, String name){
     entry = OverlayEntry(
         builder: (context) =>
-            TourViewer(model: model, entry: entry, voiceGuide:light, name: name,)
+            ProviderScope(
+                overrides: [
+                  isOrbitPlayingProvider.overrideWith((ref) => false),
+                ],
+                child: TourViewer(model: model, entry: entry, voiceGuide:light, name: name,)
+            )
     );
     final overlay = Overlay.of(context);
     overlay.insert(entry!);

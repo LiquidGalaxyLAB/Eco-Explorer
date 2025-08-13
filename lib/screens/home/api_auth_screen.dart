@@ -106,4 +106,3 @@ class _ApiAuthScreenState extends State<ApiAuthScreen> {
     );
   }
 }
-

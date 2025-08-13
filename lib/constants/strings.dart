@@ -38,8 +38,8 @@ class Constants{
   static const String transcribe = 'TRANSCRIBED TEXT';
 
   //about data
-  static const String about = '⬧ This project was created during the Google Summer of Code 2025 alongside the Liquid Galaxy organization. \n⬧ This app has been developed by Shuvam Swapnil Dash (email: shuvamswapnil21@gmail.com) under Liquid Galaxy, thanks to the Google Summer of Code 2025 Program. \n⬧ \n⬧ \n⬧ \n⬧ ';
-  static String aboutAuth = "Created & Maintained By - Shuvam Swapnil Dash\nMentors - Gabry Izquierdo, Alfredo Bautista\nOrganization Admin - Andreu Ibáñez\nLleida Liquid Galaxy LAB support - ";
+  static const String about = '⬧ This project was created during the Google Summer of Code 2025 alongside the Liquid Galaxy organization. \n⬧ This app has been developed by Shuvam Swapnil Dash (email: shuvamswapnil21@gmail.com) under Liquid Galaxy, thanks to the Google Summer of Code 2025 Program. \n⬧ Eco Explorer for Liquid Galaxy provides a master interface that showcases a dashboard of various expansive forests around the globe and allows users to explore them in depth. \n⬧ The application provides features like Virtual Tour, Biodiversity Display, Graphical Visualizations and Catastrope Status of the forests. \n⬧ It works with Liquid Galaxy rig to provide immersive and education experience to your virtual forest disovery. \n⬧ Thanks to the team of the Liquid Galaxy LAB Lleida, Headquarters of the Liquid Galaxy project: Alba, Paula, Josep, Jordi, Oriol, Sharon, Alejandro, Marc, and admin Andreu, for their continuous support on my project. Info in www.liquidgalaxy.eu';
+  static String aboutAuth = "Created & Maintained By - Shuvam Swapnil Dash\nMentors - Gabry Izquierdo, Alfredo Bautista\nOrganization Admin - Andreu Ibáñez";
   static String aboutImg = "Attributions";
   static String aboutAttr = "The following resources were used for the project.";
 
@@ -70,6 +70,11 @@ class Constants{
   static const String openWeatherDesc = 'Air Pollution API gains access to the current and historical environmental quality data of the desired location.';
   static const String firmsDesc = 'FIRMS API fetches the various active and recent fire detection hotspots based on area, date and sensor.';
 
+
+  static const String voice = 'Turn ON/OFF the voice command module';
+  static const String orbit = 'START/STOP orbit around the location';
+  static const String zoom = 'Zoom IN/OUT of the location';
+
   static const String commands = '⬧ ZOOM IN: Zooms the rig out\n⬧ ZOOM OUT: Zooms the rig in\n⬧ MOVE UP: Moves the rig upwards\n⬧ MOVE DOWN: Moves the rig downwards\n⬧ MOVE LEFT: Moves the rig to the left\n⬧ MOVE RIGHT: Moves the rig to the right\n⬧ ORBIT: Orbit around the location';
   static const String appCommands = '⬧ HOME: Navigates to Home Screen\n⬧ API: Navigates to API Authentication Screen\n⬧ PREFERENCES/SETTINGS: Navigates to Preferences Screen\n⬧ ABOUT: Navigates to About Screen\n⬧ To navigate to the dashboard of a forest, speak out the name of the forest.';
   static const String commonCommands = '⬧ HELP: Navigates to Help Screen\n⬧ EXIT: Exits the application';
@@ -77,11 +82,11 @@ class Constants{
 
   static const double mapScale = 6.25;
   static const double fireScale = 13;
-  static const double orbitScale = 10;
+  static const double orbitScale = 12;
   static const double defaultScale = 15;
 
   static const double forestAltitude = 1000000;
-  static const double biodivAltitude = 200;
+  static const double biodivAltitude = 70;
   static const double zoomedFireAltitude = 100000;
   static const double tourAltitude = 2000;
 

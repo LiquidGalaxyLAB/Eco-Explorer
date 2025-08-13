@@ -2,7 +2,9 @@ import 'package:eco_explorer/constants/fonts.dart';
 import 'package:eco_explorer/constants/strings.dart';
 import 'package:eco_explorer/constants/theme.dart';
 import 'package:eco_explorer/screens/help_screen.dart';
+import 'package:eco_explorer/screens/voice_dialog.dart';
 import 'package:eco_explorer/widgets/connection_bar.dart';
+import 'package:eco_explorer/widgets/custom_page_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lottie/lottie.dart';
@@ -10,6 +12,7 @@ import 'package:lottie/lottie.dart';
 import '../ref/instance_provider.dart';
 import '../ref/values_provider.dart';
 import '../utils/connection/ssh.dart';
+import '../utils/kml/kml_entity.dart';
 import 'home/about_screen.dart';
 import 'home/api_auth_screen.dart';
 import 'home/preferences.dart';
@@ -41,8 +44,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStat
     await ssh.connectToLG(context);
 
     if(ssh.isConnected){
-      await ssh.cleanBalloon(context);
+      await ssh.clearBalloon(context);
       await ssh.clearKml(context);
+      await ssh.sendKmltoSlave(context,
+          KmlEntity.screenOverlayImage(Constants.overlay, 500/554), Constants.leftRig(ssh.rigCount()));
+
     }
   }
 
@@ -91,6 +97,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStat
         shape: CircleBorder(),
         backgroundColor: Colors.transparent,
         onPressed: () {
+          showModalBottomSheet(context: context, builder: (_){
+            return VoiceDialog(provider: homeVoiceProvider,);
+          });
         },
         // child: Image.asset(
         //   'assets/voice/voice.png',
@@ -99,22 +108,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStat
         // ),
         child: Container(
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(Constants.totalHeight(context) * 0.2)),
-              boxShadow: [
-                BoxShadow(
-                    color: Colors.black.withOpacity(0.5),
-                    blurRadius: 5,
-                    spreadRadius: 2
-                )
-              ]
+            borderRadius: BorderRadius.all(Radius.circular(Constants.totalHeight(context) * 0.2)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.5),
+                blurRadius: 5,
+                spreadRadius: 2
+              )
+            ]
           ),
           child: Lottie.asset(
               'assets/voice/anim.json',
               width: Constants.totalHeight(context) * 0.2,
               height: Constants.totalHeight(context) * 0.2,
-              fit: BoxFit.contain,
-              animate: true,
-              repeat: false
+            fit: BoxFit.contain,
+            animate: true,
+            repeat: false
           ),
         ),
         // child: RiveAnimation.asset(
@@ -149,7 +158,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStat
           children: [
             buildTabItem(index: 0, icon: Icons.dashboard_outlined),
             buildTabItem(index: 1, icon: Icons.vpn_key_outlined),
-            SizedBox(width: Constants.totalWidth(context)*0.05),
+             SizedBox(width: Constants.totalWidth(context)*0.05),
             buildTabItem(index: 2, icon: Icons.settings_outlined),
             buildTabItem(index: 3, icon: Icons.info_outline),
           ],

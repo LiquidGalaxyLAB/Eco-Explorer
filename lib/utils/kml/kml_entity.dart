@@ -45,43 +45,43 @@ class KmlEntity{
         <size x="${554}" y="${(554 * factor)}" xunits="pixels" yunits="pixels"/>
       </ScreenOverlay>
       ''', 'EcoExplorer');
-  //
-  // '''
-  // <?xml version="1.0" encoding="UTF-8"?>
-  // <kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
-  // <Document>
-  //   <name>EcoExplorer</name>
-  //   <open>1</open>
-  //   <Folder>
-  //     <name>tags</name>
-  //     <Style>
-  //       <ListStyle>
-  //         <listItemType>checkHideChildren</listItemType>
-  //         <bgColor>00ffffff</bgColor>
-  //         <maxSnippetLines>2</maxSnippetLines>
-  //       </ListStyle>
-  //     </Style>
-  //     <ScreenOverlay id="123">
-  //       <name>EcoExplorer</name>
-  //       <Icon>
-  //         <href>$imageUrl</href>
-  //       </Icon>
-  //       <overlayXY x="0" y="1" xunits="fraction" yunits="fraction"/>
-  //       <screenXY x="0.025" y="0.95" xunits="fraction" yunits="fraction"/>
-  //       <rotationXY x="0" y="0" xunits="fraction" yunits="fraction"/>
-  //       <size x="${300}" y="${(300 * factor)}" xunits="pixels" yunits="pixels"/>
-  //     </ScreenOverlay>
-  //   </Folder>
-  // </Document>
-  // </kml>
-  // ''';
+      //
+      // '''
+      // <?xml version="1.0" encoding="UTF-8"?>
+      // <kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+      // <Document>
+      //   <name>EcoExplorer</name>
+      //   <open>1</open>
+      //   <Folder>
+      //     <name>tags</name>
+      //     <Style>
+      //       <ListStyle>
+      //         <listItemType>checkHideChildren</listItemType>
+      //         <bgColor>00ffffff</bgColor>
+      //         <maxSnippetLines>2</maxSnippetLines>
+      //       </ListStyle>
+      //     </Style>
+      //     <ScreenOverlay id="123">
+      //       <name>EcoExplorer</name>
+      //       <Icon>
+      //         <href>$imageUrl</href>
+      //       </Icon>
+      //       <overlayXY x="0" y="1" xunits="fraction" yunits="fraction"/>
+      //       <screenXY x="0.025" y="0.95" xunits="fraction" yunits="fraction"/>
+      //       <rotationXY x="0" y="0" xunits="fraction" yunits="fraction"/>
+      //       <size x="${300}" y="${(300 * factor)}" xunits="pixels" yunits="pixels"/>
+      //     </ScreenOverlay>
+      //   </Folder>
+      // </Document>
+      // </kml>
+      // ''';
 
   static String generateBlank(String id) => '''
-    <?xml version="1.0" encoding="UTF-8"?>
-    <kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
-      <Document id="$id">
-      </Document>
-    </kml>
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+  <Document id="$id">
+  </Document>
+</kml>
     ''';
 
   static String buildOrbit(double lat, double lon){
@@ -104,6 +104,56 @@ class KmlEntity{
               </LookAt>
             </gx:FlyTo>
 ''';
+    }
+
+    return '''<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+   <gx:Tour>
+   <name>Orbit</name>
+      <gx:Playlist>
+         $lookAts
+      </gx:Playlist>
+   </gx:Tour>
+</kml>''';
+  }
+
+static String buildTour(IndividualTour loc){
+    String lookAts = '';
+
+      lookAts += '''
+      <gx:FlyTo>
+              <gx:duration>1.2</gx:duration>
+              <gx:flyToMode>bounce</gx:flyToMode>
+              <LookAt>
+                  <longitude>${loc.lon}</longitude>
+                    <latitude>${loc.lat}</latitude>
+                    <heading>0}</heading>
+                    <tilt>60</tilt>
+                    <range>40000</range>
+                    <gx:fovy>60</gx:fovy> 
+                    <altitude>3341.7995674</altitude> 
+                    <gx:altitudeMode>absolute</gx:altitudeMode>
+                </LookAt>
+              </gx:FlyTo>
+      ''';
+
+      for (int i=0;i<=360;i+=18) {
+        lookAts += '''
+      <gx:FlyTo>
+              <gx:duration>1.2</gx:duration>
+              <gx:flyToMode>smooth</gx:flyToMode>
+              <LookAt>
+                  <longitude>${loc.lon}</longitude>
+                    <latitude>${loc.lat}</latitude>
+                    <heading>${i.toDouble()}</heading>
+                    <tilt>60</tilt>
+                    <range>40000</range>
+                    <gx:fovy>60</gx:fovy> 
+                    <altitude>3341.7995674</altitude> 
+                    <gx:altitudeMode>absolute</gx:altitudeMode>
+                </LookAt>
+              </gx:FlyTo>
+      ''';
     }
 
     return '''<?xml version="1.0" encoding="UTF-8"?>
@@ -234,10 +284,10 @@ $firePlacemarks
     final radiusMean = 0.05 + (clampedDelta / 1000.0) * (0.3 - 0.05);
 
     NoisePolygonGenerator noise = NoisePolygonGenerator(
-        numVertices: (2*delta).floor() + 1,
-        radiusMean: radiusMean,
-        // noiseScale: 0.25,
-        noiseAmplitude: radiusMean*2/3
+      numVertices: (2*delta).floor() + 1,
+      radiusMean: radiusMean,
+      // noiseScale: 0.25,
+      noiseAmplitude: radiusMean*2/3
     );
 
     double lat = fire.lat;
@@ -254,7 +304,7 @@ $firePlacemarks
     String border =
     (delta >= 100 || ti4 >= 360) ? 'ff0000ff' : (delta >= 50 || ti4 >= 330) ? 'ff006efa' : 'ff00e3ec';
     String fill =
-    (delta >= 100 || ti4 >= 360) ? '660070fa' : (delta >= 50 || ti4 >= 330) ? '6633fff3' : '66bcede8';
+    (delta >= 100 || ti4 >= 360) ? '66008afe' : (delta >= 50 || ti4 >= 330) ? '6633fff3' : '66bcede8';
 
     return getKmlSkeleton('''
 <StyleMap id="firePolygon">
@@ -315,19 +365,25 @@ $firePlacemarks
     </outerBoundaryIs>
   </Polygon>
   </Placemark>
+    ''', 'Zooomed fire');
+  }
+
+  static String getLogoKml(FireInfo fire){
+
+    return getKmlSkeleton('''
   <GroundOverlay>
   <name>Fire Icon</name>
   <Icon>
       <href>${Constants.fireIcon}</href>  
   </Icon>
   <LatLonBox>
-      <north>$lon</north>
-      <south>$lon</south>
-      <east>$lat</east>
-      <west>$lat</west>
+      <north>${fire.lon+0.1}</north>
+      <south>${fire.lon-0.1}</south>
+      <east>${fire.lat+0.15}</east>
+      <west>${fire.lat-0.15}</west>
   </LatLonBox>
   </GroundOverlay>
-    ''', 'Zooomed fire');
+    ''', 'Logo');
   }
 
   static String getMultiGeometryPolygon(String data, String style,int year)=>'''

@@ -8,12 +8,11 @@ class Loading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: Constants.totalHeight(context),
-      width: Constants.totalWidth(context),
-      color: Colors.black.withOpacity(0.3),
-      child: Center(
+    return Scaffold(
+      backgroundColor: Colors.black.withOpacity(0.75),
+      body: Center(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CircularProgressIndicator(color: Themes.cardText,),
             SizedBox(height: Constants.totalHeight(context)*0.05,),
