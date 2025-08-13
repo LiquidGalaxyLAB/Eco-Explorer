@@ -72,6 +72,7 @@ class Ssh extends ChangeNotifier{
   }
 
   Future<bool> reconnectToLG(BuildContext context) async {
+    await disconnect(context);
     await connectToLG(context);
     return isConnected;
   }
@@ -194,16 +195,42 @@ class Ssh extends ChangeNotifier{
     }
   }
 
+  Future<void> clearLogo() async{
+    try{
+      if(_client == null){
+        print('SSH Client not initialized');
+        return;
+      }
+
+      int leftRig = Constants.leftRig(int.parse(_numberOfRigs));
+
+      String kml = KmlEntity.generateBlank('slave_$leftRig');
+
+     await _client!.run(
+          "echo '$kml' > /var/www/html/kml/slave_$leftRig.kml");
+      print("Result: echo '$kml' > /var/www/html/kml/slave_$leftRig.kml");
+      print("Logo cleared");
+
+    }
+    catch(e){
+      print("Error occured: $e");
+      return;
+    }
+  }
+
   Future<void> clearKml(BuildContext context) async{
     try{
       String query =
           'echo "exittour=true" > /tmp/query.txt && > /var/www/html/kmls.txt';
+
       for (var i = 2; i <= int.parse(_numberOfRigs); i++) {
         String blankKml = KmlEntity.generateBlank('slave_$i');
         query += " && echo '$blankKml' > /var/www/html/kml/slave_$i.kml";
       }
 
-      await _client!.run(query);
+      print(query);
+
+      await _client?.execute(query);
 
       showSnackBar(context, 'Cleared Logos and KMLs', Colors.green);
     }catch(e){
@@ -212,13 +239,33 @@ class Ssh extends ChangeNotifier{
     }
   }
 
-  cleanBalloon(context) async {
+  Future<void>  clearMaster(BuildContext context) async{
+    try{
+      String query =
+          'echo "exittour=true" > /tmp/query.txt && > /var/www/html/kmls.txt';
+
+      await _client!.run(query);
+
+      // showSnackBar(context, 'Cleared Logos and KMLs', Colors.green);
+    }catch(e){
+      await reconnectToLG(context);
+      clearKml(context);
+    }
+  }
+
+  clearBalloon(context) async {
     try {
-      await _client!.run(
-          "echo '${BalloonEntity.blankBalloon()}' > /var/www/html/kml/slave_${Constants.rightRig(int.parse(_numberOfRigs))}.kml");
+      int rightRig = Constants.rightRig(int.parse(_numberOfRigs));
+
+      String kml = KmlEntity.generateBlank('slave_$rightRig');
+
+      await _client!.execute(
+          "echo '$kml' > /var/www/html/kml/slave_$rightRig.kml");
+      print("Result: echo '$kml' > /var/www/html/kml/slave_$rightRig.kml");
+
     } catch (error) {
       await reconnectToLG(context);
-      await cleanBalloon(context);
+      await clearBalloon(context);
     }
   }
 
@@ -247,11 +294,6 @@ class Ssh extends ChangeNotifier{
 
       final remotePath = '/var/www/html/$kmlName';
 
-      try {
-        await sftp?.remove(remotePath);
-      } catch (e) {
-      }
-
       final fileContents = await inputFile.readAsString();
       print("File contents:\n$fileContents");
 
@@ -259,6 +301,7 @@ class Ssh extends ChangeNotifier{
           mode: SftpFileOpenMode.create |
           SftpFileOpenMode.truncate |
           SftpFileOpenMode.write);
+
       await file?.write(inputFile.openRead().cast());
       if (file == null) {
         return;
@@ -276,6 +319,32 @@ class Ssh extends ChangeNotifier{
       }
       print('running kml');
       await _client!.run('echo "\nhttp://lg1:81/$fileName" > /var/www/html/kmls.txt');
+      print('kml ran');
+      return true;
+    } on SSHChannelOpenError{
+      await reconnectToLG(context);
+      await sendKml(context, fileName);
+
+      return true;
+    } on SSHStateError{
+      await reconnectToLG(context);
+      await sendKml(context, fileName);
+
+      return true;
+    }
+    catch(e){
+      showSnackBar(context, e.toString(), Themes.error);
+      return false;
+    }
+  }
+
+  Future<bool?> appendKml(BuildContext context, String fileName) async{
+    try {
+      if(_client==null) {
+        return false;
+      }
+      print('running kml');
+      await _client!.run('echo "\nhttp://lg1:81/$fileName" >> /var/www/html/kmls.txt');
       print('kml ran');
       return true;
     } catch(e){
@@ -301,7 +370,6 @@ class Ssh extends ChangeNotifier{
       if(_client==null) {
         return;
       }
-      await _client!.run('echo "" > /tmp/query.txt');
       await _client!.run('echo "playtour=Orbit" > /tmp/query.txt');
       print('tour started');
     } catch (e) {
@@ -342,10 +410,20 @@ class Ssh extends ChangeNotifier{
       double zoom, double tilt, double heading) async {
     try {
       String lookAt = LookAtEntity(longitude, latitude, altitude, zoom, tilt, heading).linearLookAt();
+      print('flying to');
       await _client!.run(
           'echo "flytoview=$lookAt" > /tmp/query.txt');
       setMap(ref, latitude, longitude, altitude, zoom, tilt, heading);
-    } catch (e) {
+    } on SSHChannelOpenError{
+      await reconnectToLG(context);
+      await flyToWithoutSaving(context, ref, latitude, longitude, altitude, zoom, tilt, heading);
+
+    } on SSHStateError{
+      await reconnectToLG(context);
+      await flyToWithoutSaving(context, ref, latitude, longitude, altitude, zoom, tilt, heading);
+    }
+    
+    catch (e) {
       showSnackBar(context, e.toString(), Themes.error);
     }
   }
@@ -366,8 +444,16 @@ class Ssh extends ChangeNotifier{
 
       await _client!.run(
           'echo "flytoview=${LookAtEntity(longitude, latitude, altitude, zoom, tilt, bearing).linearLookAt()}" > /tmp/query.txt');
-    } catch (e) {
-      showSnackBar(context, e.toString(), Themes.error);
+    } on SSHChannelOpenError{
+      await reconnectToLG(context);
+      await flyTo(ref, context, latitude, longitude, zoom, tilt, bearing);
+
+    } on SSHStateError{
+      await reconnectToLG(context);
+      await flyTo(ref, context, latitude, longitude, zoom, tilt, bearing);
+    }
+    catch (e) {
+        showSnackBar(context, e.toString(), Themes.error);
     }
   }
 

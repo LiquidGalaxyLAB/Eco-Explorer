@@ -29,15 +29,17 @@ class AqiRepository<M>{
             throw 'Failed to retrieve cached AQI data.';
           }
 
-        } else {
-          return await _loadFromLocal('Unknown Error Happened!');
+        }
+        else {
+          return await _loadFromLocal('Error in fetching');
         }
       }catch(e){
-        print(e.toString());
-        return await _loadFromLocal('Error in fetching');
+        return await _loadFromLocal(
+            'Invalid API Key');
+        // return await _loadFromLocal('Error in fetching: ${e.toString()}');
       }
     }else{
-      return await _loadFromLocal('Can\'t load API');
+      return await _loadFromLocal('You are offline');
     }
   }
 

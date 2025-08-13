@@ -4,6 +4,7 @@ import 'package:eco_explorer/constants/fonts.dart';
 import 'package:eco_explorer/constants/strings.dart';
 import 'package:eco_explorer/utils/kml/balloon_entity.dart';
 import 'package:eco_explorer/widgets/indicator_bar.dart';
+import 'package:eco_explorer/widgets/pyramid_chart.dart';
 import 'package:eco_explorer/widgets/secondary_button.dart';
 import 'package:eco_explorer/widgets/theme_card.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +24,7 @@ import '../../widgets/failure.dart';
 import '../../widgets/line_chart.dart';
 import 'package:screenshot/screenshot.dart';
 
-import '../../widgets/pyramid_chart.dart';
+import '../rig_controller.dart';
 
 class EnviroScreen extends ConsumerStatefulWidget {
   EnviroScreen({super.key});
@@ -109,7 +110,14 @@ class _EnviroScreenState extends ConsumerState<EnviroScreen> {
                                       SizedBox(
                                         width: Constants.totalWidth(context) * 0.4,
                                         height:Constants.totalWidth(context) * 0.4,
-                                        child: PyramidChart(aqi: aqi.round()),
+                                        child:
+                                        // CircularProgressIndicator(
+                                        //   value: (aqi <= 5)? (aqi/5) : 1,
+                                        //   color: aqiColor(aqi),
+                                        //   backgroundColor: Colors.grey,
+                                        //   strokeWidth: Constants.totalWidth(context) * 0.075,
+                                        // ),
+                                        PyramidChart(aqi: aqi.round())
                                       ),
                                       SizedBox(
                                         width: Constants.totalWidth(context) * 0.25,
@@ -314,71 +322,133 @@ class _EnviroScreenState extends ConsumerState<EnviroScreen> {
               ),
               SizedBox(height: Constants.cardMargin(context),),
               ThemeCard(
-                  width: Constants.totalWidth(context),
-                  child: histAqiState.when(
-                      data: (state){
-                        if(state is ApiLoading){
-                          return Center(child: CircularProgressIndicator(color: Themes.cardText),);
-                        }
+                width: Constants.totalWidth(context),
+                child: histAqiState.when(
+                    data: (state){
+                            if(state is ApiLoading){
+                              return Center(child: CircularProgressIndicator(color: Themes.cardText),);
+                            }
 
-                        if(state is ApiSuccess<HistAqiModel>){
-                          final data = state.model;
-                          List<TimestampAqi> aqis = data.aqis;
+                            if(state is ApiSuccess<HistAqiModel>){
+                              final data = state.model;
+                              List<TimestampAqi> aqis = data.aqis;
 
-                          return Column(
-                            children: [
-                              Row(
+                              return Column(
                                 children: [
-                                  Text('Historical Data',style: Fonts.semiBold.copyWith(fontSize: Constants.totalHeight(context)*0.0275,color: Themes.cardText),),
+                                  Row(
+                                    children: [
+                                      Text('Historical Data',style: Fonts.semiBold.copyWith(fontSize: Constants.totalHeight(context)*0.0275,color: Themes.cardText),),
+                                    ],
+                                  ),
+                                  SizedBox(height: Constants.cardMargin(context),),
+                                  // Row(
+                                  //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                  //   children: [
+                                  //     Row(
+                                  //       children: [
+                                  //         Container(
+                                  //           height: Constants.totalHeight(context) * 0.015,
+                                  //           width: Constants.totalHeight(context) * 0.015,
+                                  //           decoration: BoxDecoration(
+                                  //             color: Themes.graph,
+                                  //           ),
+                                  //         ),
+                                  //         SizedBox(width: Constants.totalWidth(context) * 0.025),
+                                  //         Text(
+                                  //             'Normal Curve',
+                                  //             style: Fonts.regular.copyWith(
+                                  //               fontSize: Constants.totalWidth(context) * 0.025,
+                                  //               color: Themes.cardText,
+                                  //             )
+                                  //         )
+                                  //       ],
+                                  //     ),
+                                  //     Row(
+                                  //       children: [
+                                  //         Container(
+                                  //           height: Constants.totalHeight(context) * 0.015,
+                                  //           width: Constants.totalHeight(context) * 0.015,
+                                  //           decoration: BoxDecoration(
+                                  //             color: Themes.smoothGraph,
+                                  //           ),
+                                  //         ),
+                                  //         SizedBox(width: Constants.totalWidth(context) * 0.025),
+                                  //         Text(
+                                  //             'Smoothened Curve',
+                                  //             style: Fonts.regular.copyWith(
+                                  //               fontSize: Constants.totalWidth(context) * 0.025,
+                                  //               color: Themes.cardText,
+                                  //             )
+                                  //         )
+                                  //       ],
+                                  //     )
+                                  //   ],
+                                  // ),
+                                  // SizedBox(height: Constants.cardMargin(context),),
+                                  ConstrainedBox(
+                                      constraints: BoxConstraints(maxHeight: Constants.totalHeight(context)),
+                                      child: AqiLineChart(aqis: aqis)
+                                  ),
                                 ],
-                              ),
-                              SizedBox(height: Constants.cardMargin(context),),
-                              ConstrainedBox(
-                                  constraints: BoxConstraints(maxHeight: Constants.totalHeight(context)),
-                                  child: AqiLineChart(aqis: aqis)
-                              ),
-                            ],
-                          );
-                        }
-                        if(state is ApiFailure){
-                          return Column(
-                            children: [
-                              Row(
+                              );
+                            }
+                            if(state is ApiFailure){
+                              return Column(
                                 children: [
-                                  Text('Historical Data',style: Fonts.semiBold.copyWith(fontSize: Constants.totalHeight(context)*0.0275,color: Themes.cardText),),
+                                  Row(
+                                    children: [
+                                      Text('Historical Data',style: Fonts.semiBold.copyWith(fontSize: Constants.totalHeight(context)*0.0275,color: Themes.cardText),),
+                                    ],
+                                  ),
+                                  SizedBox(height: 0.5*Constants.cardMargin(context),),
+                                  Failure(error: state.error),
                                 ],
-                              ),
-                              SizedBox(height: 0.5*Constants.cardMargin(context),),
-                              Failure(error: state.error),
-                            ],
-                          );
-                        }
-                        return Center();
-                      },
-                      error: (error, _)=> Column(
-                        children: [
-                          Row(
-                            children: [
-                              Text('Historical Data',style: Fonts.semiBold.copyWith(fontSize: Constants.totalHeight(context)*0.0275,color: Themes.cardText),),
-                            ],
-                          ),
-                          SizedBox(height: 0.5*Constants.cardMargin(context),),
-                          Failure(error: error.toString()),
-                        ],
-                      ),
-                      loading: () => Center(child: CircularProgressIndicator(color: Themes.cardText),)
-                  )
+                              );
+                            }
+                            return Center();
+                    },
+                    error: (error, _)=> Column(
+                      children: [
+                        Row(
+                          children: [
+                            Text('Historical Data',style: Fonts.semiBold.copyWith(fontSize: Constants.totalHeight(context)*0.0275,color: Themes.cardText),),
+                          ],
+                        ),
+                        SizedBox(height: 0.5*Constants.cardMargin(context),),
+                        Failure(error: error.toString()),
+                      ],
+                    ),
+                    loading: () => Center(child: CircularProgressIndicator(color: Themes.cardText),)
+                )
               ),
             ],
           ),
         ),
         SizedBox(height: Constants.cardMargin(context),),
         SecondaryButton(label: 'Visualize Data', onTap: () async{
-
-          }, icon: Icons.bar_chart,),
+          await sendImageBalloon();
+          await ssh.flyToWithoutSaving(context, ref, forest.lat, forest.lon, Constants.forestAltitude, Constants.defaultScale, 0, 0);
+          showOverlay(context,ssh);
+        }, icon: Icons.bar_chart,),
       ],
     );
   }
 
+  sendImageBalloon() async{
+    String fileName = '${forest.path}_${Constants.dataFile}';
+    await Future.delayed(Constants.screenshotDelay).then((e) async{
+      imgController.capture().then((img) async{
+        image.Image? decodedImage = image.decodePng(Uint8List.fromList(img!));
+        await ssh.imageFileUpload(context, img, fileName);
+        print('Uploaded');
+        await ssh.imageFileUploadSlave(context, fileName);
+        print('Sent to slave');
+        await ssh.sendKmltoSlave(context, BalloonEntity.aqiBalloon(forest, Constants.defaultScale, 0, 0, decodedImage!.height/decodedImage.width), Constants.rightRig(ssh.rigCount()));
+        print('Shown on rig');
+        await ssh.flyToWithoutSaving(context, ref, forest.lat, forest.lon, Constants.forestAltitude, Constants.defaultScale, 0, 0);
+      });
+
+    });
+  }
 
 }

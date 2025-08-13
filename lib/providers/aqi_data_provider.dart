@@ -28,11 +28,11 @@ class AqiDataProvider implements IAqiDataProvider {
       print(url);
 
       final res = await dio.get(url,
-        //     queryParameters: {
-        //   'lat': lat.toString(),
-        //   'lon': lon.toString(),
-        //   'appid': apiKey,
-        // }
+      //     queryParameters: {
+      //   'lat': lat.toString(),
+      //   'lon': lon.toString(),
+      //   'appid': apiKey,
+      // }
       );
 
       // print(res.data);
@@ -67,13 +67,13 @@ class HistAqiDataProvider implements IAqiDataProvider {
       String url = 'http://api.openweathermap.org/data/2.5/air_pollution/history?lat=$lat&lon=$lon&start=$start&end=$end&appid=$openWeatherApiKey';
 
       final res = await dio.get(url,
-        //     queryParameters: {
-        //   'lat': lat.toString(),
-        //   'lon': lon.toString(),
-        //   'start': start.toString(),
-        //   'end': end.toString(),
-        //   'appid': apiKey
-        // }
+      //     queryParameters: {
+      //   'lat': lat.toString(),
+      //   'lon': lon.toString(),
+      //   'start': start.toString(),
+      //   'end': end.toString(),
+      //   'appid': apiKey
+      // }
       );
       return res;
     }catch (e, stackTrace) {

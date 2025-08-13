@@ -38,8 +38,13 @@ class _AqiLineChartState extends State<AqiLineChart> {
             LineChartBarData(
                 spots: plots,
                 isCurved: true,
-                color:Themes.smoothGraph
+                color:Themes.graph
             ),
+            // LineChartBarData(
+            //   spots: plots,
+            //   isCurved: false,
+            //   color:Themes.graph
+            // ),
           ],
           minY: 1,
           maxY: 5,

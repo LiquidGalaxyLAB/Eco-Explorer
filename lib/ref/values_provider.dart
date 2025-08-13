@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-
 import '../models/forests_model.dart';
 
 //Map control
@@ -34,11 +33,8 @@ final List<String> labels = ['Satellite', 'Terrain', 'Hybrid'];
 
 StateProvider<bool> isOrbitPlayingProvider = StateProvider<bool>((ref) => false);
 
-StateProvider<bool> isDownloadedProvider = StateProvider<bool>((ref) => false);
 StateProvider<double> downloadingProvider = StateProvider<double>((ref) => 0.0);
 StateProvider<String> downloadingTextProvider = StateProvider<String>((ref) => 'Downloading Data');
 
+//map control
 StateProvider<CameraPosition?> lastMapPositionProvider = StateProvider((ref) => null);
-
-
-

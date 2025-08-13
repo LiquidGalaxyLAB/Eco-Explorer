@@ -16,7 +16,6 @@ class FireModel extends HiveObject{
 
     for (int i = 1; i < data.length; i++) {
       try {
-        print('Parsed fire: ${data[i]}');
         fires.add(
           FireInfo(
             lat: double.parse(data[i][1].toString()),

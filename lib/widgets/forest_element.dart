@@ -1,4 +1,5 @@
 import 'package:eco_explorer/screens/dashboard_screen.dart';
+import 'package:eco_explorer/widgets/custom_page_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,7 +19,7 @@ class ForestElement extends ConsumerStatefulWidget {
 }
 
 class _ForestElementState extends ConsumerState<ForestElement> {
-
+  
   @override
   Widget build(BuildContext context) {
 
@@ -28,19 +29,19 @@ class _ForestElementState extends ConsumerState<ForestElement> {
     return GestureDetector(
         onTap: () {
           ref.read(forestProvider.notifier).state = forest;
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>DashboardScreen()));
+          Navigator.push(context, MaterialPageRoute(builder: (_)=>DashboardScreen()));
         },
         child: Stack(
           alignment: Alignment.topRight,
           children: [
             Neumorphic(
               style: NeumorphicStyle(
-                  shape: NeumorphicShape.concave,
-                  boxShape: NeumorphicBoxShape.roundRect(BorderRadius.all(Radius.circular(Constants.cardRadius(context)))),
-                  // depth: Constants.totalHeight(context)*0.007,
+                shape: NeumorphicShape.concave,
+                boxShape: NeumorphicBoxShape.roundRect(BorderRadius.all(Radius.circular(Constants.cardRadius(context)))),
+                // depth: Constants.totalHeight(context)*0.007,
                   intensity: 0.75,
-                  lightSource: LightSource.bottomRight,
-                  shadowLightColor: Colors.white.withOpacity(0.6)
+                lightSource: LightSource.bottomRight,
+                shadowLightColor: Colors.white.withOpacity(0.6)
               ),
               child: Container(
                 width: Constants.totalWidth(context)*0.9,
@@ -56,8 +57,8 @@ class _ForestElementState extends ConsumerState<ForestElement> {
                     //     spreadRadius: -2,
                     //     blurRadius: 5
                     // )],
-                    // color: Colors.black,
-                    image: DecorationImage(image: AssetImage('${Constants.home}/${forest.path}.png'), fit: BoxFit.cover)
+                  // color: Colors.black,
+                  image: DecorationImage(image: AssetImage('${Constants.home}/${forest.path}.png'), fit: BoxFit.cover)
                 ),
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: Constants.cardPadding(context)),
@@ -68,14 +69,14 @@ class _ForestElementState extends ConsumerState<ForestElement> {
                       SizedBox(
                         width: Constants.totalWidth(context)*0.275,
                         child: Text(forest.name, style: Fonts.bold
-                            .copyWith(
+                          .copyWith(
                             fontSize: Constants.totalHeight(context)*0.019, color: Colors.white,
-                            shadows: [
-                              Shadow(
-                                blurRadius:7.5,
-                                color: Colors.black,
-                              )
-                            ]
+                          shadows: [
+                            Shadow(
+                              blurRadius:7.5,
+                              color: Colors.black,
+                            )
+                          ]
                         )
                           ,maxLines: 2,),
                       ),

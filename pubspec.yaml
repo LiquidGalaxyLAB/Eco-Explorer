@@ -61,7 +61,8 @@ dependencies:
   screenshot:
   image:
   carousel_slider:
-  qr_code_scanner_plus:
+  mobile_scanner:
+  permission_handler:
   flutter_joystick:
   throttling:
   url_launcher:

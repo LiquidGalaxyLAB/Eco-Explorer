@@ -1,11 +1,11 @@
 import 'package:eco_explorer/constants/theme.dart';
 import 'package:eco_explorer/widgets/snackbar.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:groq/groq.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/strings.dart';
-
 
 String jsonStruct = '''{
   "locations": [
@@ -42,7 +42,7 @@ class GroqTourProvider{
       Avoid ```
       It should have the structure as: 
       $jsonStruct
-      Include 5 locations.
+      Include 5 locations. Ensure the accuracy of the coordinates.
       Ensure proper escaping (\\, \\n, space) so it can be parsed by Flutter JSON decoder.
       The descriptions should be in a paragraph format(each entry when spoken should last for around 15 seconds), in $mode mode.
       '''
@@ -55,6 +55,7 @@ class GroqTourProvider{
     }on GroqException {
       // showSnackBar(context, e.toString(), Themes.error);
       rethrow;
+      return null;
     }
   }
 }

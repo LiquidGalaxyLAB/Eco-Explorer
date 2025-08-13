@@ -20,6 +20,10 @@ class FireRepository{
       try{
         final response = await dataProvider.getFireData(ref, country, range);
 
+        if(response.data == 'Invalid MAP_KEY.'){
+          throw 'Invalid Map Key';
+        }
+
         if (response.statusCode == 200) {
           FireModel fireModel = FireModel.fromCsv(response.data);
           await dbProvider.insertData(post: fireModel);

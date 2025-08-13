@@ -1,24 +1,31 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate';
+import 'dart:ui';
 
 import 'package:eco_explorer/constants/fonts.dart';
 import 'package:eco_explorer/constants/strings.dart';
 import 'package:eco_explorer/constants/theme.dart';
 import 'package:eco_explorer/ref/values_provider.dart';
+import 'package:eco_explorer/utils/kml/kml_entity.dart';
 import 'package:eco_explorer/widgets/primary_button.dart';
+import 'package:eco_explorer/widgets/secondary_button.dart';
 import 'package:eco_explorer/widgets/snackbar.dart';
 import 'package:eco_explorer/widgets/text_box.dart';
 import 'package:eco_explorer/widgets/theme_card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../ref/instance_provider.dart';
 import '../../utils/connection/ssh.dart';
-import '../../utils/kml/kml_entity.dart';
+import '../../utils/data_downloader.dart';
+import '../../utils/kml/balloon_entity.dart';
+import '../../widgets/theme_dialog_box.dart';
 import '../qr_code_scanner.dart';
 
 class Preferences extends ConsumerStatefulWidget {
@@ -34,12 +41,20 @@ class _PreferencesState extends ConsumerState<Preferences> with TickerProviderSt
 
   BuildContext? innerContext;
 
+  final ReceivePort _port = ReceivePort();
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
 
+    IsolateNameServer.registerPortWithName(_port.sendPort, 'downloader_send_port');
+    _port.listen((dynamic data) {
+      // String id = data[0];
+      // ref.read(downloadingTextProvider.notifier).state = DownloadTaskStatus.fromInt(data[1]).name;
+      // ref.read(downloadingProvider.notifier).state = data[2]/100;
+      setState((){});
+    });
   }
 
   @override
@@ -51,7 +66,7 @@ class _PreferencesState extends ConsumerState<Preferences> with TickerProviderSt
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisSize: MainAxisSize.min,
+        mainAxisSize: MainAxisSize.min,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -59,6 +74,96 @@ class _PreferencesState extends ConsumerState<Preferences> with TickerProviderSt
             GestureDetector(
                 onTap: () async{
 
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  final isDownloaded = prefs.getBool('isDownloaded');
+
+                  if(isDownloaded==true){
+                    showSnackBar(context, 'Already downloaded', Colors.grey[800]!);
+                  }else{
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          backgroundColor: Colors.grey[900],
+                          title: Text('Data not downloaded', style: TextStyle(color: Colors.white)),
+                          content: Text('Do you want to download all the 3D models (73 MB)?',
+                              style: TextStyle(color: Colors.white)),
+                          actions: [
+                            TextButton(
+                              onPressed: () async {
+                                Navigator.of(context).pop();
+
+                                Future.microtask(() async {
+                                  try {
+                                    print('Download started');
+                                    await DataDownloader().downloadData(ref, context);
+
+                                    if (innerContext != null && Navigator.of(innerContext!).canPop()) {
+                                      await prefs.setBool('isDownloaded', true);
+                                      showSnackBar(context, 'Downloaded Successfully', Colors.green);
+                                      Navigator.of(innerContext!).pop();
+                                    }
+                                  } catch (e) {
+                                    print(e.toString());
+                                    if (innerContext != null && Navigator.of(innerContext!).canPop()) {
+                                      showSnackBar(innerContext!, 'Failed to Download', Themes.error);
+                                      Navigator.of(innerContext!).pop();
+                                    } else if (Navigator.of(context).canPop()) {
+                                      showSnackBar(context, 'Failed to Download', Themes.error);
+                                      Navigator.of(context).pop();
+                                    }
+                                  }
+                                });
+
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (ctx) {
+                                    innerContext = ctx;
+                                    return Dialog(
+                                      child: ThemeDialogBox(
+                                        child: StatefulBuilder(
+                                          builder: (context, setModalState) {
+                                            return SingleChildScrollView(
+                                              child: Center(
+                                                child: Column(
+                                                  children: [
+                                                    CircularProgressIndicator(
+                                                      color: Themes.cardText,
+                                                      // value: ref.watch(downloadingProvider),
+                                                    ),
+                                                    SizedBox(height: 0.5 * Constants.cardMargin(context)),
+                                                    Text(
+                                                      ref.watch(downloadingTextProvider),
+                                                      style: Fonts.medium.copyWith(
+                                                        fontSize: Constants.totalHeight(context) * 0.015,
+                                                        color: Themes.cardText,
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                              child: Text('Yes', style: TextStyle(color: Colors.white)),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: Text('No', style: TextStyle(color: Colors.white)),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
                 },
                 child: Container(
                   // width: double.maxFinite,
@@ -78,7 +183,92 @@ class _PreferencesState extends ConsumerState<Preferences> with TickerProviderSt
                 )
             ),
             GestureDetector(
-                onTap: (){},
+                onTap: () async{
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  final isDownloaded = prefs.getBool('isDownloaded');
+
+                  if(isDownloaded==false){
+                    showSnackBar(context, 'Not downloaded', Colors.grey[800]!);
+                  }else{
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          backgroundColor: Colors.grey[900],
+                          content: Text('Do you want to delete all the 3D models?',
+                              style: TextStyle(color: Colors.white)),
+                          actions: [
+                            TextButton(
+                              onPressed: () async {
+                                Navigator.of(context).pop();
+
+                                Future.microtask(() async {
+                                  try {
+                                    print('Download started');
+                                    await DataDownloader().deleteData();
+
+                                    if (innerContext != null && Navigator.of(innerContext!).canPop()) {
+                                      await prefs.setBool('isDownloaded', false);
+                                      showSnackBar(context, 'Deleted Successfully', Colors.green);
+                                      Navigator.of(innerContext!).pop();
+                                    }
+                                  } catch (e) {
+                                    print(e.toString());
+                                    if (innerContext != null && Navigator.of(innerContext!).canPop()) {
+                                      showSnackBar(innerContext!, 'Failed to Delete', Themes.error);
+                                      Navigator.of(innerContext!).pop();
+                                    } else if (Navigator.of(context).canPop()) {
+                                      showSnackBar(context, 'Failed to Delete', Themes.error);
+                                      Navigator.of(context).pop();
+                                    }
+                                  }
+                                });
+
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (ctx) {
+                                    innerContext = ctx;
+                                    return Dialog(
+                                      child: ThemeDialogBox(
+                                        child: StatefulBuilder(
+                                          builder: (context, setModalState) {
+                                            return SingleChildScrollView(
+                                              child: Center(
+                                                child: Column(
+                                                  children: [
+                                                    Text(
+                                                      'Deleting data',
+                                                      style: Fonts.medium.copyWith(
+                                                        fontSize: Constants.totalHeight(context) * 0.015,
+                                                        color: Themes.cardText,
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                              child: Text('Yes', style: TextStyle(color: Colors.white)),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: Text('No', style: TextStyle(color: Colors.white)),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
+                },
                 child: Container(
                   // width: double.maxFinite,
                   padding: EdgeInsets.symmetric(horizontal: Constants.cardPadding(context), vertical: Constants.cardPadding(context)*0.5),
@@ -106,17 +296,17 @@ class _PreferencesState extends ConsumerState<Preferences> with TickerProviderSt
             tabs: [
               Tab(text: "LG Connection"),
               Tab(text: "LG Commands")
-            ]),
+        ]),
         SizedBox(height: Constants.cardMargin(context),),
-        Expanded(
-          child: TabBarView(
-            controller: _tabController,
-            children: [
-              LgConnection(), LgCommands()
-            ],
-          ),
-        )
+          Expanded(
+    child: TabBarView(
+      controller: _tabController,
+      children: [
+        LgConnection(), LgCommands()
       ],
+    ),
+          )
+    ],
     );
   }
 }
@@ -228,11 +418,11 @@ class _LgConnectionState extends ConsumerState<LgConnection> {
                       width: Constants.totalWidth(context),
                       height: 1,
                       decoration: BoxDecoration(
-                          color: Themes.primaryButtonBg
+                        color: Themes.primaryButtonBg
                       ),
                     ),
                     Container(
-                        color: Themes.cardBg,
+                      color: Themes.cardBg,
                         padding: EdgeInsets.symmetric(horizontal: Constants.cardPadding(context)),
                         child: Text('OR',style: Fonts.bold.copyWith(fontSize:  Constants.totalWidth(context) * 0.04,color: Themes.cardText),)
                     )
@@ -243,7 +433,7 @@ class _LgConnectionState extends ConsumerState<LgConnection> {
                   children: [
                     for (int i = 0; i < labels.length; i++) ...[
                       TextInputField(
-                        label: labels[i], hint: hints[i], controller: controllers[i], i: i, prefixIcon: icons[i],
+                          label: labels[i], hint: hints[i], controller: controllers[i], i: i, prefixIcon: icons[i],
                       ),
                       SizedBox(height: Constants.cardMargin(context),)
                     ]
@@ -316,7 +506,7 @@ class _LgConnectionState extends ConsumerState<LgConnection> {
   connect() async{
     await ssh.connectToLG(context);
     if(ref.read(sshProvider).connected){
-      await ssh.cleanBalloon(context);
+      await ssh.clearBalloon(context);
       await ssh.sendKmltoSlave(context,
           KmlEntity.screenOverlayImage(Constants.overlay, 500/554), Constants.leftRig(ssh.rigCount()));
     }
@@ -342,18 +532,37 @@ class _LgCommandsState extends ConsumerState<LgCommands> {
 
   @override
   Widget build(BuildContext context) {
-    List<String> commands = ['Set Slaves Refresh','Reset Slaves Refresh','Relaunch','Reboot','Clear KML + Logos','Power Off'];
-    List<IconData> icons = [Icons.timer_outlined,Icons.timer_off_outlined,Icons.login_outlined,Icons.refresh,Icons.cleaning_services_sharp,Icons.power_settings_new];
+    List<String> commands = ['Set Slaves Refresh','Reset Slaves Refresh','Relaunch','Reboot','Clear KML + Logos','Power Off',
+      // 'Test KMZ'
+    ];
+    List<IconData> icons = [Icons.timer_outlined,Icons.timer_off_outlined,Icons.login_outlined,Icons.refresh,Icons.cleaning_services_sharp,Icons.power_settings_new
+      // ,CupertinoIcons.globe
+    ];
     List<Future<void> Function()> functions = [
           () async => await ssh.setRefresh(context),
           () async => await ssh.resetRefresh(context),
           () async => await ssh.relaunchLG(context),
           () async => await ssh.rebootLG(context),
           () async {
-        await ssh.cleanBalloon(context);
-        await ssh.clearKml(context);
-      },
-          () async => await ssh.powerOff(context)
+            await ssh.clearKml(context);
+            },
+          () async => await ssh.powerOff(context),
+      // () async{
+      //   final filename = 'toucan.kmz';
+      //   final byteData = await rootBundle.load('assets/test/$filename');
+      //
+      //   final tempDir = await getTemporaryDirectory();
+      //   final file = File('${tempDir.path}/$filename');
+      //
+      //   await file.writeAsBytes(byteData.buffer.asUint8List());
+      //   print("File created");
+      //   await ssh.kmlFileUpload(file,filename);
+      //   print("Uploaded");
+      //   await ssh.sendKml(context, filename);
+      //   print("Kml sent ");
+      // await ssh.flyToWithoutSaving(context, ref, 0.588400, -69.204176, Constants.biodivAltitude, Constants.orbitScale, 70, 0);
+      //
+      // }
     ];
     return SingleChildScrollView(
       child: Column(
@@ -410,4 +619,3 @@ class _LgCommandsState extends ConsumerState<LgCommands> {
     );
   }
 }
-

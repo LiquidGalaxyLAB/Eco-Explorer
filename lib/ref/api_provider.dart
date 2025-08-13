@@ -6,6 +6,7 @@ import 'package:eco_explorer/providers/forest_data_provider.dart';
 import 'package:eco_explorer/providers/nasa_firms_data_provider.dart';
 import 'package:eco_explorer/repositories/fire_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/strings.dart';
 import '../models/aqi/aqi_model.dart';

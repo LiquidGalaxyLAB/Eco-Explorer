@@ -1,3 +1,4 @@
+import 'package:eco_explorer/ref/instance_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/fonts.dart';
 import '../constants/strings.dart';
 import '../constants/theme.dart';
-import '../ref/instance_provider.dart';
+import '../ref/values_provider.dart';
 
 class ConnectionBar extends StatelessWidget {
   final WidgetRef ref;
