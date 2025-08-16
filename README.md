@@ -46,4 +46,74 @@
 
 ### Building from Source
 
+#### Prerequisites:
+
+* Android Studio, Visual Studio Code or another IDE that supports Flutter development
+* Flutter SDK
+* Android SDK
+* Android tablet device or emulator
+* Git
+
+Documentation on how to set up Flutter SDK and its environment can be found [here](https://flutter.dev/docs/get-started/install). Make sure to have [Git](https://git-scm.com/) and [Flutter](https://flutter.dev) installed in your machine before proceeding.
+
+#### Steps:
+
+* Clone the repository via the following terminal command:
+
+```bash
+$ git clone https://github.com/LiquidGalaxyLAB/Super-Liquid-Galaxy-Controller.git
+$ cd Super-Liquid-Galaxy-Controller
+```
+
+* After you have successfully cloned the project, set up Google maps API Key as Super Liquid Galaxy Controller uses [Google maps Android API](https://developers.google.com/maps/documentation/android-sdk/overview?hl=pt-br) as the map service. To use Google maps you required an **API KEY**. To get this key you need to:
+
+1. Have a Google Account
+2. Create a Google Cloud Project
+3. Open Google Cloud Console
+4. Enable Maps Android SDK
+5. Generate an API KEY
+
+With the key in hands, the next step is placing the key inside the app. Go to *android/app/main* and edit the **AndroidManifest.xml**.
+
+Replace the **PLACE_HERE_YOUR_API_KEY** with the key you just created.
+
+```XML
+<application
+        android:label="Super Liquid Galaxy Controller"
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher">
+        <meta-data android:name="com.google.android.geo.API_KEY"
+            android:value="PLACE_HERE_YOUR_API_KEY"/>
+```  
+
+* To run the code, open a terminal and navigate to the project root directory. First you need to install the packages by running:
+
+```bash
+$ flutter pub get
+```
+
+* Now we check if our devices are connected and if all the environment is correct by the following terminal command:
+
+```bash
+$ flutter doctor
+```
+
+*  After this, we run our app by using the following command:
+
+> ❗ Remember that you must have a tablet device connected or an android tablet emulator running in order to run the app.
+
+```bash
+$ flutter run
+```
+
+* To build the APK, use the following terminal command:
+
+```bash
+$ flutter build apk
+```
+
+> ⓘ  Once done, the APK file may be found into the `/build/app/outputs/flutter-apk/` directory, named `app-release.apk`.
+
+* Finally setup the connection with the Liquid Galaxy in the same way as we did previously.
+
 ## End Credits
