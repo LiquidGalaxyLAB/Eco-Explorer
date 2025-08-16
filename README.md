@@ -55,6 +55,7 @@ You will need API keys to run the system:
 
 ### Downloading from GO Web Store
 
+
 ### Building from Source
 
 #### Prerequisites:
@@ -84,7 +85,7 @@ $ cd Super-Liquid-Galaxy-Controller
 4. Enable Maps Android SDK
 5. Generate an API KEY
 
-With the key in hands, the next step is placing the key inside the app. Go to *android/app/main* and edit the **AndroidManifest.xml**.
+With the key in hand, the next step is placing the key inside the app. Go to *android/app/main* and edit the **AndroidManifest.xml**.
 
 Replace the **PLACE_HERE_YOUR_API_KEY** with the key you just created.
 
@@ -110,8 +111,6 @@ $ flutter doctor
 ```
 
 *  After this, we run our app by using the following command:
-
-> ❗ Remember that you must have a tablet device connected or an android tablet emulator running in order to run the app.
 
 ```bash
 $ flutter run
