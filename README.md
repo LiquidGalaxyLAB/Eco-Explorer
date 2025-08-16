@@ -73,11 +73,11 @@ Documentation on how to set up Flutter SDK and its environment can be found [her
 * Clone the repository via the following terminal command:
 
 ```bash
-$ git clone https://github.com/LiquidGalaxyLAB/Super-Liquid-Galaxy-Controller.git
-$ cd Super-Liquid-Galaxy-Controller
+$ git clone https://github.com/LiquidGalaxyLAB/Eco-Explorer.git
+$ cd Eco-Explorer
 ```
 
-* After you have successfully cloned the project, set up Google maps API Key as Super Liquid Galaxy Controller uses [Google maps Android API](https://developers.google.com/maps/documentation/android-sdk/overview?hl=pt-br) as the map service. To use Google maps you required an **API KEY**. To get this key you need to:
+* After you have successfully cloned the project, set up Google Maps API Key as Eco Explorer for Liquid Galaxy uses [Google maps Android API](https://developers.google.com/maps/documentation/android-sdk/overview?hl=pt-br) as the map service. To use Google maps you required an **API KEY**. To get this key you need to:
 
 1. Have a Google Account
 2. Create a Google Cloud Project
@@ -91,7 +91,7 @@ Replace the **PLACE_HERE_YOUR_API_KEY** with the key you just created.
 
 ```XML
 <application
-        android:label="Super Liquid Galaxy Controller"
+        android:label="Eco Explorer for Liquid Galaxy"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <meta-data android:name="com.google.android.geo.API_KEY"
