@@ -6,7 +6,15 @@
 
 ## Table of Contents
 
-## About the application
+- **[About the Application](#about-the-application)**
+- **[Features](#features)**
+- **[Tech Stack](#tech-stack)**
+- **[Prerequisites](#prerequisites)**
+- **[Usage](#usage)**
+- **[Downloading from GO Web Store](#downloading-from-go-web-store)**
+- **[Building from Source](#building-from-source)**
+
+## About the Application
 
 ## Features
 
