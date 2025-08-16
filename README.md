@@ -40,6 +40,17 @@
 
 ## Prerequisites
 
+* 6.x-inch Android mobile phone
+  
+### API Keys Setup
+
+You will need API keys to run the system:
+
+- **Groq API Key**: Get from [https://console.groq.com/keys](https://console.groq.com)  
+- **Deepgram API Key**: Get from [https://console.deepgram.com](https://console.deepgram.com)
+- **OpenWeather API Key**: Get from [https://docs.openweather.co.uk/our-initiatives/student-initiative](https://docs.openweather.co.uk/our-initiatives/student-initiative)
+- **NASA FIRMS API Key**: Get from [https://firms.modaps.eosdis.nasa.gov/api/map_key/](https://firms.modaps.eosdis.nasa.gov/api/map_key/)
+
 ## Usage
 
 ### Downloading from GO Web Store
@@ -48,10 +59,10 @@
 
 #### Prerequisites:
 
-* Android Studio, Visual Studio Code or another IDE that supports Flutter development
+* Android Studio, Visual Studio Code or any other IDE that supports Flutter development
 * Flutter SDK
 * Android SDK
-* Android tablet device or emulator
+* Android 6.x-inch device or emulator
 * Git
 
 Documentation on how to set up Flutter SDK and its environment can be found [here](https://flutter.dev/docs/get-started/install). Make sure to have [Git](https://git-scm.com/) and [Flutter](https://flutter.dev) installed in your machine before proceeding.
