@@ -58,7 +58,7 @@ You will need API keys to run the system:
 #### Steps:
 * Download and install the app using this [Go Web Store link](https://store.liquidgalaxy.eu/app.html?name=Eco%20Explorer%20for%20Liquid%20Galaxy). 
 * To connect to the Liquid Galaxy rig, go to the Preferences(⚙️) screen and go to LG Connection Tab; then fill the details mentioned there.
-* To get complete access of the features of the application, follow the steps mentioned in [Prerequisites](#prerequisites) to get  the API keys and paste it in the text fields in the API Authentication(🔑) screen.
+* To get complete access of the features of the application, follow the steps mentioned in the [prerequisites](#prerequisites) to get the API keys and paste them in their respective text fields in the API Authentication(🔑) screen.
 
 * You are now ready to explore the depth of the forests!
 
