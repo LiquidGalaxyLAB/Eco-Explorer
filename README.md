@@ -127,7 +127,7 @@ $ flutter build apk
 * Finally setup the connection with the Liquid Galaxy in the same way as we did previously.
 
 ## End Credits
-###An application orchestrated by
+### An application orchestrated by
 * [Shuvam Swapnil Dash](https://github.com/Ssdosaofc)
 * Mentors - Gabry Izquierdo, Alfredo Bautista
 * Organization Admin - Andreu Ibáñez
